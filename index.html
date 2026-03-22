@@ -62,14 +62,10 @@
 
         header{
           text-align:center;margin-bottom:0;animation:fadeDown .9s ease both;
-          position:relative;border-radius:20px;overflow:hidden;
-          background:rgba(2,5,20,0.0);
+          position:relative;
+          background:transparent;
         }
-        #headerCanvas{
-          position:absolute;inset:0;width:100%;height:100%;
-          border-radius:20px;z-index:0;pointer-events:none;
-        }
-        .moon-title-wrap{position:relative;z-index:2;}
+        #headerCanvas{ display:none; }
         .moon-title{
           font-family:'Cinzel',serif;font-size:clamp(2rem,6vw,3.4rem);font-weight:600;letter-spacing:.1em;
           background:linear-gradient(135deg,#ffffff 0%,#f0f0f0 50%,#ffffff 100%);
@@ -81,10 +77,27 @@
         }
         .moon-title-wrap{
           display:inline-block;
-          background:rgba(5,10,30,0.35);
+          position:relative;z-index:2;
+          background:
+            radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.9) 0%, transparent 100%),
+            radial-gradient(1px 1px at 25% 70%, rgba(200,220,255,0.8) 0%, transparent 100%),
+            radial-gradient(1.5px 1.5px at 40% 15%, rgba(255,255,255,0.95) 0%, transparent 100%),
+            radial-gradient(1px 1px at 55% 55%, rgba(180,200,255,0.7) 0%, transparent 100%),
+            radial-gradient(1px 1px at 65% 85%, rgba(255,255,255,0.85) 0%, transparent 100%),
+            radial-gradient(1.5px 1.5px at 75% 30%, rgba(255,240,200,0.9) 0%, transparent 100%),
+            radial-gradient(1px 1px at 85% 60%, rgba(200,220,255,0.8) 0%, transparent 100%),
+            radial-gradient(1px 1px at 90% 10%, rgba(255,255,255,0.7) 0%, transparent 100%),
+            radial-gradient(1px 1px at 15% 45%, rgba(255,255,255,0.75) 0%, transparent 100%),
+            radial-gradient(1px 1px at 32% 88%, rgba(200,210,255,0.8) 0%, transparent 100%),
+            radial-gradient(1px 1px at 48% 40%, rgba(255,255,255,0.6) 0%, transparent 100%),
+            radial-gradient(1px 1px at 70% 75%, rgba(255,255,255,0.85) 0%, transparent 100%),
+            radial-gradient(1px 1px at 92% 50%, rgba(200,220,255,0.7) 0%, transparent 100%),
+            radial-gradient(1px 1px at 5%  65%, rgba(255,255,255,0.8) 0%, transparent 100%),
+            radial-gradient(1px 1px at 58% 92%, rgba(180,200,255,0.75) 0%, transparent 100%),
+            linear-gradient(160deg, #000c1a 0%, #001228 40%, #000a20 70%, #000612 100%);
           border-radius:16px;
           padding:6px 22px 8px;
-          backdrop-filter:blur(6px);
+          overflow:hidden;
           border:1px solid rgba(255,230,80,0.70);
           box-shadow:0 0 30px rgba(255,220,0,0.35), 0 0 8px rgba(255,240,100,0.25), inset 0 1px 0 rgba(255,240,120,0.20);
         }
@@ -533,89 +546,36 @@
 <body>
 <!-- 🔐 Écran de connexion -->
 <div id="loginOverlay" style="
-position:fixed;
-inset:0;
-z-index:9999;
-display:flex;
-align-items:center;
-justify-content:center;
+position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
 background:linear-gradient(160deg,rgba(5,15,5,0.95),rgba(2,8,20,0.98));
-backdrop-filter:blur(8px);
-font-family:'Cinzel',serif;
-">
-<div style="
-background:rgba(10,20,10,0.9);
-border:1px solid rgba(140,192,80,0.4);
-border-radius:20px;
-padding:40px 30px;
-width:90%;
-max-width:340px;
-text-align:center;
-box-shadow:0 20px 60px rgba(0,0,0,0.7);
-">
+backdrop-filter:blur(8px);font-family:'Cinzel',serif;">
+<div style="background:rgba(10,20,10,0.9);border:1px solid rgba(140,192,80,0.4);border-radius:20px;
+padding:40px 30px;width:90%;max-width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.7);">
 <div style="font-size:2rem;margin-bottom:10px;">🌙</div>
-<h2 style="
-color:#c8e070;
-letter-spacing:.12em;
-font-size:1rem;
-margin-bottom:20px;
-text-transform:uppercase;
-">
-Accès privé
-</h2>
+<h2 style="color:#c8e070;letter-spacing:.12em;font-size:1rem;margin-bottom:20px;text-transform:uppercase;">Accès privé</h2>
 <input id="passwordInput" type="password" placeholder="Mot de passe"
 onkeydown="if(event.key==='Enter')checkPassword()"
-style="
-width:100%;
-padding:12px;
-border-radius:10px;
-border:1px solid rgba(140,192,80,0.4);
-background:rgba(0,0,0,0.4);
-color:white;
-font-size:1rem;
-outline:none;
-margin-bottom:15px;
-text-align:center;
-box-sizing:border-box;
-">
-<button onclick="checkPassword()" style="
-width:100%;
-padding:12px;
-border-radius:10px;
-border:none;
-cursor:pointer;
-background:linear-gradient(180deg,#6aaa40,#3a6e1a);
-color:#e8f8d0;
-font-size:.8rem;
-letter-spacing:.1em;
-text-transform:uppercase;
-box-shadow:0 4px 0 #1e4a08;
-">
-Entrer
-</button>
-<div id="errorMsg" style="
-margin-top:12px;
-color:#ff8080;
-font-size:.85rem;
-display:none;
-">
-Mot de passe incorrect
-</div>
+style="width:100%;padding:12px;border-radius:10px;border:1px solid rgba(140,192,80,0.4);
+background:rgba(0,0,0,0.4);color:white;font-size:1rem;outline:none;margin-bottom:15px;
+text-align:center;box-sizing:border-box;">
+<button onclick="checkPassword()" style="width:100%;padding:12px;border-radius:10px;border:none;
+cursor:pointer;background:linear-gradient(180deg,#6aaa40,#3a6e1a);color:#e8f8d0;font-size:.8rem;
+letter-spacing:.1em;text-transform:uppercase;box-shadow:0 4px 0 #1e4a08;">Entrer</button>
+<div id="errorMsg" style="margin-top:12px;color:#ff8080;font-size:.85rem;display:none;">Mot de passe incorrect</div>
 </div>
 </div>
 <script>
-function checkPassword() {
-    const input = document.getElementById("passwordInput").value;
-    if (input === "Nono88") {
-        document.getElementById("loginOverlay").style.display = "none";
+function checkPassword(){
+    const input=document.getElementById("passwordInput").value;
+    if(input==="Nono88"){
+        document.getElementById("loginOverlay").style.display="none";
     } else {
-        document.getElementById("errorMsg").style.display = "block";
-        document.getElementById("passwordInput").value = "";
+        document.getElementById("errorMsg").style.display="block";
+        document.getElementById("passwordInput").value="";
         document.getElementById("passwordInput").focus();
     }
 }
 </script>
-
 
 <div id="bg-layer"></div>
 <div id="stars"></div>
@@ -630,7 +590,6 @@ function checkPassword() {
 <div class="shell">
 
     <header>
-        <canvas id="headerCanvas"></canvas>
         <div class="moon-title-wrap">
             <div class="moon-title"><svg viewBox="0 0 40 40" width="0.85em" height="0.85em" style="vertical-align:middle;margin-right:0.12em;margin-bottom:0.1em;filter:drop-shadow(0 0 8px rgba(255,200,0,0.9)) drop-shadow(0 1px 2px rgba(0,0,0,0.8));">
                 <defs>
@@ -5429,8 +5388,8 @@ function fermerJardin(){document.getElementById('page-jardin').style.display='no
         <div style="background:rgba(10,20,8,0.8);backdrop-filter:blur(10px);border:1px solid rgba(90,140,70,0.28);border-radius:16px;padding:20px;margin-bottom:16px;">
             <div style="font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:.15em;color:#a8c060;text-transform:uppercase;margin-bottom:14px;">⚙️ Gestion & rotation</div>
             <div class="pot-config">
-                <label>Lignes :</label><input class="pot-input" type="number" id="pot-rows" min="1" max="30" value="3">
-                <label>Colonnes :</label><input class="pot-input" type="number" id="pot-cols" min="1" max="10" value="4">
+                <label for="pot-rows">Lignes :</label><input class="pot-input" type="number" id="pot-rows" min="1" max="30" value="3">
+                <label for="pot-cols">Colonnes :</label><input class="pot-input" type="number" id="pot-cols" min="1" max="10" value="4">
                 <button class="pot-btn" onclick="potBuild()">Créer le jardin</button>
                 <button class="pot-btn pot-btn-danger" onclick="potReset()">🗑 Effacer</button>
                 <button class="pot-btn" style="border-color:rgba(90,130,200,0.5);background:rgba(90,130,200,0.12);color:#a0b8f0;" onclick="potImportPenseBete()">📋 Pense-bête</button>
