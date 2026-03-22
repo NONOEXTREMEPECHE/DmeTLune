@@ -701,16 +701,6 @@ function checkPassword(){
                         onmouseout="this.style.background='rgba(140,192,80,0.1)'">
                     🌅 Que faire demain ?
                 </button>
-                <a href="https://NONOEXTREMEPECHE.github.io/DmeTLune/DmeTLune_Guide_2026.pdf"
-                   target="_blank"
-                   style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
-                     padding:4px 12px;border-radius:8px;cursor:pointer;
-                     border:1px solid rgba(200,168,80,0.4);background:rgba(200,168,80,0.1);
-                     color:#e0c870;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:5px;"
-                   onmouseover="this.style.background='rgba(200,168,80,0.22)'"
-                   onmouseout="this.style.background='rgba(200,168,80,0.1)'">
-                    📖 Guide utilisateur
-                </a>
             </div>
         </div>
     </div>
@@ -1372,24 +1362,41 @@ function checkPassword(){
         'Pomme de terre','Concombre','Courgette','Melon','Courge butternut','Potiron',
         'Haricot','Pois','Rose','Framboise','Groseille'];
 
+      // Calculer l'heure exacte du périgée/apogée (minimum/maximum de distance dans ±12h)
+      let periExactTime = null;
+      if(isPeri || isApo){
+        let extremDist = isPeri ? Infinity : -Infinity;
+        let extremTime = null;
+        for(let m2=-720; m2<=720; m2+=5){ // pas de 5 min sur ±12h
+          const t2 = new Date(d.getTime() + m2*60000);
+          const dd = moonDistance_raw(t2);
+          if(isPeri && dd < extremDist){ extremDist = dd; extremTime = t2; }
+          if(isApo  && dd > extremDist){ extremDist = dd; extremTime = t2; }
+        }
+        periExactTime = extremTime;
+      }
+
       let label, icon, conseil, nefaste=false, periWaxing=false;
       if(isPeri){
-        if(waxing){
-          // Périgée croissant : semis possibles MAIS attention aux cryptogamiques
-          periWaxing = true;
-          nefaste = false; // pas bloquant
-          label='🔴 Périgée (lune croissante)'; icon='🟠';
-          conseil='Périgée en lune croissante — semis vigoureux possibles. ⚠️ Évitez les plantes sensibles aux champignons (tomate, vigne, fraise...). Préventif : décoction de prêle.';
-        } else {
-          // Périgée décroissant : vraiment défavorable
-          nefaste = true;
-          label='⚠️ Périgée — Jour défavorable'; icon='🔴';
-          conseil='Périgée en lune décroissante — risque élevé de maladies fongiques. Évitez semis et plantations ±5h.';
-        }
+        // Périgée = toujours néfaste quelle que soit la phase (perturbation gravitationnelle)
+        nefaste = true;
+        const hStr = periExactTime
+          ? periExactTime.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})
+          : '';
+        label = '🔴 Périgée' + (hStr ? ' à ' + hStr : '') + ' — Jour défavorable';
+        icon  = '🔴';
+        conseil = 'Périgée lunaire' + (hStr ? ' à ' + hStr : '')
+          + ' — Lune au plus proche de la Terre. Germination perturbée, risque élevé de maladies fongiques.'
+          + ' Évitez semis, plantations et récoltes toute la journée.';
       } else if(isApo){
         nefaste = true;
-        label='⚠️ Apogée — Jour défavorable'; icon='⚪';
-        conseil='Apogée : semis qui lèvent mal, plants fragiles. Évitez de semer ±5h.';
+        const hStr = periExactTime
+          ? periExactTime.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})
+          : '';
+        label = '⚪ Apogée' + (hStr ? ' à ' + hStr : '') + ' — Jour défavorable';
+        icon  = '⚪';
+        conseil = 'Apogée lunaire' + (hStr ? ' à ' + hStr : '')
+          + ' — Lune au plus loin. Semis qui lèvent mal, plants fragiles. Évitez de semer ±5h.';
       } else if(ratio < 0.35){
         label='Lune proche (périgée)'; icon='🟠';
         conseil='Lune proche — énergie forte, bon pour semis vigoureux.';
@@ -1510,7 +1517,10 @@ function checkPassword(){
     document.getElementById('illumSub').textContent=`Lune à ${illumPct}% éclairée`;
     const todayDist = moonDistance(today);
     document.getElementById('distVal').innerHTML=`${todayDist.icon} ${todayDist.label}`;
-    document.getElementById('distSub').textContent=`${(todayDist.km/1000).toFixed(0)} 000 km`;
+    const _distKm = `${(todayDist.km/1000).toFixed(0)} 000 km`;
+    document.getElementById('distSub').textContent = todayDist.nefaste
+      ? `${_distKm} — ⚠️ Évitez de jardiner`
+      : _distKm;
     const todayAscending = moonIsAscending(today);
     const todayNode = moonNodeStatus(today);
     const todayNewFull = moonNewFullStatus(today);
@@ -2384,7 +2394,16 @@ function checkPassword(){
         if(avert){ avert.className='sign-avert warning'; avert.textContent="⚠ Approche du changement — préparez-vous à faire une pause"; }
       } else {
         el.className = 'sign-transition';
-        if(avert){ avert.className='sign-avert'; avert.textContent="⚠ Évitez de jardiner 30 min avant et après chaque changement de signe"; }
+        // Vérifier si périgée ou apogée aujourd'hui → afficher alerte supplémentaire
+        const _distNow = moonDistance(now);
+        if(_distNow.nefaste && (_distNow.nefasteType === 'périgée' || _distNow.nefasteType === 'apogée')){
+          if(avert){
+            avert.className = 'sign-avert danger';
+            avert.textContent = '🔴 ' + _distNow.label + ' — ' + _distNow.conseil.substring(0, 80) + '…';
+          }
+        } else {
+          if(avert){ avert.className='sign-avert'; avert.textContent="⚠ Évitez de jardiner 30 min avant et après chaque changement de signe"; }
+        }
       }
       el.innerHTML = BD_ICONS_C[currentSign.bd]+' <b>'+currentBd.label+'</b> · '+currentSign.name
         +' — <b>'+timeStr+'</b> → '
