@@ -5360,7 +5360,7 @@ potFullReset = function(){
 
 <!-- ══ PANNEAU MÉTHODOLOGIE ══ -->
 <div style="position:relative;z-index:3;max-width:860px;width:100%;margin:0 auto 32px;padding:0 24px;box-sizing:border-box;">
-    <button onclick="(function(){var p=document.getElementById('metho-panel');var a=document.getElementById('metho-arrow');var open=p.style.maxHeight&&p.style.maxHeight!=='0px';p.style.maxHeight=open?'0px':'600px';p.style.opacity=open?'0':'1';a.style.transform=open?'rotate(0deg)':'rotate(180deg)';})()"
+    <button onclick="(function(){var p=document.getElementById('metho-panel');var a=document.getElementById('metho-arrow');var open=p.style.maxHeight&&p.style.maxHeight!=='0px';p.style.maxHeight=open?'0px':'1200px';p.style.opacity=open?'0':'1';a.style.transform=open?'rotate(0deg)':'rotate(180deg)';})()"
             style="width:100%;display:flex;align-items:center;justify-content:space-between;
            background:rgba(10,22,10,0.75);backdrop-filter:blur(10px);
            border:1px solid rgba(140,192,80,0.25);border-radius:12px;
@@ -5378,7 +5378,7 @@ potFullReset = function(){
             <div style="font-family:'Cinzel',serif;font-size:.78rem;color:#c8e070;letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px;">
                 📡 Données croisées : phases lunaires · conditions réelles · biodynamie
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:18px;">
                 <div style="background:rgba(140,192,80,0.07);border:1px solid rgba(140,192,80,0.18);border-radius:10px;padding:14px;">
                     <div style="font-family:'Cinzel',serif;font-size:.68rem;color:#a8c870;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">🌙 Calcul lunaire</div>
                     <p style="margin:0;font-size:.92rem;">Algorithme <b>Meeus ch.47</b> (16 termes principaux). Zodiaque <b>sidéral Lahiri</b> — référentiel biodynamique indien, décalé de ~24° par rapport au zodiaque tropical occidental.</p>
