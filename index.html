@@ -465,7 +465,6 @@
         .csel-placeholder{color:var(--muted);font-style:italic;}
         .csel-dropdown{display:none;position:fixed;z-index:99999;top:0!important;left:0!important;right:0!important;bottom:0!important;width:100vw!important;height:100vh!important;max-height:100vh!important;background:rgba(8,16,10,0.99);border:none;border-radius:0;overflow-y:auto;box-shadow:none;scrollbar-width:thin;scrollbar-color:var(--gold) transparent;padding-top:env(safe-area-inset-top,0px);}
         .csel-dropdown.open{display:block;}
-        .csel-dropdown.open{display:block;}
         .csel-option{display:flex;align-items:center;gap:10px;padding:9px 14px;font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--silver);cursor:pointer;border-bottom:1px solid rgba(90,140,70,0.08);}
         .csel-option:last-child{border-bottom:none;}
         .csel-option:hover{background:rgba(140,192,80,0.14);color:var(--text);}
@@ -532,7 +531,7 @@
         .agro-badge.neutre{background:rgba(100,120,100,0.15);border:1px solid rgba(100,120,100,0.3);color:#8aaa78;}
         .agro-badge.deconseille{background:rgba(220,80,40,0.15);border:1px solid rgba(220,80,40,0.4);color:#f08060;}
     </style>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&amp;family=Cormorant+Garamond:wght@300;400;500&amp;family=Cinzel:wght@400;600&amp;display=swap" as="style" crossorigin>
+
 
 
 
@@ -544,6 +543,7 @@
 
 </head>
 <body>
+
 <!-- 🔐 Écran de connexion -->
 <div id="loginOverlay" style="
 position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
@@ -565,9 +565,13 @@ letter-spacing:.1em;text-transform:uppercase;box-shadow:0 4px 0 #1e4a08;">Entrer
 </div>
 </div>
 <script>
-function checkPassword(){
+async function checkPassword(){
     const input=document.getElementById("passwordInput").value;
-    if(input==="Nono88"){
+    const msgBuffer=new TextEncoder().encode(input);
+    const hashBuffer=await crypto.subtle.digest('SHA-256',msgBuffer);
+    const hashArray=Array.from(new Uint8Array(hashBuffer));
+    const hashHex=hashArray.map(b=>b.toString(16).padStart(2,'0')).join('');
+    if(hashHex==="54a44bda0a281900d1b5074b40172eed2834d25342e4679e6ee066ad1d7cdcac"){
         document.getElementById("loginOverlay").style.display="none";
     } else {
         document.getElementById("errorMsg").style.display="block";
@@ -993,181 +997,181 @@ function checkPassword(){
     // ── PLANTES (semis + recolte distincts) ──
     const plantes=[
       // LÉGUMES racine
-      {nom:"Radis",          type:"legume",    jour:"racine", semis:[3,9],   recolte:[4,10]},
-      {nom:"Carotte",        type:"legume",    jour:"racine", semis:[3,7],   recolte:[6,11]},
-      {nom:"Navet",          type:"legume",    jour:"racine", semis:[3,8],   recolte:[6,11]},
-      {nom:"Betterave",      type:"legume",    jour:"racine", semis:[4,6],   recolte:[7,10]},
-      {nom:"Panais",         type:"legume",    jour:"racine", semis:[3,5],   recolte:[10,1]},
-      {nom:"Pomme de terre", type:"legume",    jour:"racine", plantation:[3,5],   recolte:[7,10], forceVerbe:"planter"},
-      {nom:"Céleri-rave",    type:"legume",    jour:"racine", semis:[2,4],   recolte:[9,11]},
-      {nom:"Salsifis",       type:"legume",    jour:"racine", semis:[3,5],   recolte:[10,1]},
-      {nom:"Topinambour",    type:"legume",    jour:"racine", plantation:[10,12], recolte:[11,2]},
-      {nom:"Rutabaga",       type:"legume",    jour:"racine", semis:[5,7],   recolte:[10,12]},
-      {nom:"Radis noir",     type:"legume",    jour:"racine", semis:[7,9],   recolte:[10,12]},
-      {nom:"Fenouil",        type:"legume",    jour:"racine", semis:[4,7],   recolte:[8,11]},
-      {nom:"Ail",            type:"legume",    jour:"racine", plantation:[10,12], recolte:[6,7]},
-      {nom:"Oignon",         type:"legume",    jour:"racine", semis:[2,4],   recolte:[7,9]},
-      {nom:"Échalote",       type:"legume",    jour:"racine", plantation:[2,3],   recolte:[7,8]},
+      {nom:"Radis",          type:"legume",    jour:"racine", semis:[3,9],   recolte:[4,10],duree_culture:4},
+      {nom:"Carotte",        type:"legume",    jour:"racine", semis:[3,7],   recolte:[6,11],duree_culture:14},
+      {nom:"Navet",          type:"legume",    jour:"racine", semis:[3,8],   recolte:[6,11],duree_culture:10},
+      {nom:"Betterave",      type:"legume",    jour:"racine", semis:[4,6],   recolte:[7,10],duree_culture:14},
+      {nom:"Panais",         type:"legume",    jour:"racine", semis:[3,5],   recolte:[10,1],duree_culture:20},
+      {nom:"Pomme de terre", type:"legume",    jour:"racine", plantation:[3,5],   recolte:[7,10], forceVerbe:"planter",duree_culture:16},
+      {nom:"Céleri-rave",    type:"legume",    jour:"racine", semis:[2,4],   recolte:[9,11],duree_culture:24},
+      {nom:"Salsifis",       type:"legume",    jour:"racine", semis:[3,5],   recolte:[10,1],duree_culture:20},
+      {nom:"Topinambour",    type:"legume",    jour:"racine", plantation:[10,12], recolte:[11,2],duree_culture:20},
+      {nom:"Rutabaga",       type:"legume",    jour:"racine", semis:[5,7],   recolte:[10,12],duree_culture:14},
+      {nom:"Radis noir",     type:"legume",    jour:"racine", semis:[7,9],   recolte:[10,12],duree_culture:10},
+      {nom:"Fenouil",        type:"legume",    jour:"racine", semis:[4,7],   recolte:[8,11],duree_culture:14},
+      {nom:"Ail",            type:"legume",    jour:"racine", plantation:[10,12], recolte:[6,7],duree_culture:32},
+      {nom:"Oignon",         type:"legume",    jour:"racine", semis:[2,4],   recolte:[7,9],duree_culture:20},
+      {nom:"Échalote",       type:"legume",    jour:"racine", plantation:[2,3],   recolte:[7,8],duree_culture:20},
       // LÉGUMES feuille
-      {nom:"Laitue",         type:"legume",    jour:"feuille",semis:[3,8],   recolte:[5,10]},
-      {nom:"Laitue pommée",  type:"legume",    jour:"feuille",semis:[3,9],   recolte:[5,10]},
-      {nom:"Laitue batavia",  type:"legume",    jour:"feuille",semis:[3,8],   recolte:[5,10]},
-      {nom:"Laitue romaine",  type:"legume",    jour:"feuille",semis:[3,7],   recolte:[5,9]},
-      {nom:"Scarole",         type:"legume",    jour:"feuille",semis:[6,8],   recolte:[9,11]},
-      {nom:"Chicorée frisée", type:"legume",    jour:"feuille",semis:[5,7],   recolte:[8,11]},
-      {nom:"Pissenlit",       type:"legume",    jour:"feuille",semis:[3,5],   recolte:[3,6]},
-      {nom:"Pourpier",        type:"legume",    jour:"feuille",semis:[5,8],   recolte:[6,10]},
-      {nom:"Mâche",          type:"legume",    jour:"feuille",semis:[8,10],  recolte:[11,3]},
-      {nom:"Épinard",        type:"legume",    jour:"feuille",semis:[3,5],   recolte:[5,7]},
-      {nom:"Chou",           type:"legume",    jour:"feuille",semis:[3,5],   recolte:[9,1]},
-      {nom:"Poireau",        type:"legume",    jour:"feuille",semis:[2,4],   recolte:[9,2]},
-      {nom:"Blette",         type:"legume",    jour:"feuille",semis:[4,7],   recolte:[6,10]},
-      {nom:"Endive",         type:"legume",    jour:"feuille",semis:[5,6],   recolte:[11,2]},
-      {nom:"Chicorée",       type:"legume",    jour:"feuille",semis:[5,7],   recolte:[9,11]},
-      {nom:"Roquette",       type:"legume",    jour:"feuille",semis:[3,9],   recolte:[4,10]},
-      {nom:"Cresson",        type:"legume",    jour:"feuille",semis:[3,9],   recolte:[4,10]},
-      {nom:"Pak-choï",       type:"legume",    jour:"feuille",semis:[3,9],   recolte:[5,10]},
-      {nom:"Céleri branche", type:"legume",    jour:"feuille",semis:[2,4],   recolte:[8,11]},
-      {nom:"Chou de Bruxelles",type:"legume", jour:"feuille",semis:[4,5],   recolte:[10,1]},
-      {nom:"Chou rouge",     type:"legume",    jour:"feuille",semis:[3,5],   recolte:[9,11]},
-      {nom:"Bette à carde",  type:"legume",    jour:"feuille",semis:[4,6],   recolte:[6,10]},
+      {nom:"Laitue",         type:"legume",    jour:"feuille",semis:[3,8],   recolte:[5,10],duree_culture:8},
+      {nom:"Laitue pommée",  type:"legume",    jour:"feuille",semis:[3,9],   recolte:[5,10],duree_culture:8},
+      {nom:"Laitue batavia",  type:"legume",    jour:"feuille",semis:[3,8],   recolte:[5,10],duree_culture:9},
+      {nom:"Laitue romaine",  type:"legume",    jour:"feuille",semis:[3,7],   recolte:[5,9],duree_culture:10},
+      {nom:"Scarole",         type:"legume",    jour:"feuille",semis:[6,8],   recolte:[9,11],duree_culture:12},
+      {nom:"Chicorée frisée", type:"legume",    jour:"feuille",semis:[5,7],   recolte:[8,11],duree_culture:12},
+      {nom:"Pissenlit",       type:"legume",    jour:"feuille",semis:[3,5],   recolte:[3,6],duree_culture:8},
+      {nom:"Pourpier",        type:"legume",    jour:"feuille",semis:[5,8],   recolte:[6,10],duree_culture:8},
+      {nom:"Mâche",          type:"legume",    jour:"feuille",semis:[8,10],  recolte:[11,3],duree_culture:8},
+      {nom:"Épinard",        type:"legume",    jour:"feuille",semis:[3,5],   recolte:[5,7],duree_culture:8},
+      {nom:"Chou",           type:"legume",    jour:"feuille",semis:[3,5],   recolte:[9,1],duree_culture:16},
+      {nom:"Poireau",        type:"legume",    jour:"feuille",semis:[2,4],   recolte:[9,2],duree_culture:24},
+      {nom:"Blette",         type:"legume",    jour:"feuille",semis:[4,7],   recolte:[6,10],duree_culture:12},
+      {nom:"Endive",         type:"legume",    jour:"feuille",semis:[5,6],   recolte:[11,2],duree_culture:16},
+      {nom:"Chicorée",       type:"legume",    jour:"feuille",semis:[5,7],   recolte:[9,11],duree_culture:12},
+      {nom:"Roquette",       type:"legume",    jour:"feuille",semis:[3,9],   recolte:[4,10],duree_culture:6},
+      {nom:"Cresson",        type:"legume",    jour:"feuille",semis:[3,9],   recolte:[4,10],duree_culture:5},
+      {nom:"Pak-choï",       type:"legume",    jour:"feuille",semis:[3,9],   recolte:[5,10],duree_culture:7},
+      {nom:"Céleri branche", type:"legume",    jour:"feuille",semis:[2,4],   recolte:[8,11],duree_culture:20},
+      {nom:"Chou de Bruxelles",type:"legume", jour:"feuille",semis:[4,5],   recolte:[10,1],duree_culture:20},
+      {nom:"Chou rouge",     type:"legume",    jour:"feuille",semis:[3,5],   recolte:[9,11],duree_culture:18},
+      {nom:"Bette à carde",  type:"legume",    jour:"feuille",semis:[4,6],   recolte:[6,10],duree_culture:12},
       // LÉGUMES fleur
-      {nom:"Brocoli",        type:"legume",    jour:"fleur",  semis:[3,4],   recolte:[6,10]},
-      {nom:"Chou-fleur",     type:"legume",    jour:"fleur",  semis:[3,4],   recolte:[7,10]},
-      {nom:"Artichaut",      type:"legume",    jour:"fleur",  semis:[3,4],   recolte:[6,9]},
+      {nom:"Brocoli",        type:"legume",    jour:"fleur",  semis:[3,4],   recolte:[6,10],duree_culture:14},
+      {nom:"Chou-fleur",     type:"legume",    jour:"fleur",  semis:[3,4],   recolte:[7,10],duree_culture:16},
+      {nom:"Artichaut",      type:"legume",    jour:"fleur",  semis:[3,4],   recolte:[6,9],duree_culture:52},
       // LÉGUMES fruit
-      {nom:"Tomate",         type:"legume",    jour:"fruit",  semis:[2,3],   recolte:[7,10]},
-      {nom:"Tomate cerise",  type:"legume",    jour:"fruit",  semis:[2,3],   recolte:[7,9]},
-      {nom:"Courgette",      type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[6,9]},
-      {nom:"Concombre",      type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[7,9]},
-          {nom:"Cornichon",       type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[7,9]},
-      {nom:"Poivron",        type:"legume",    jour:"fruit",  semis:[2,3],   recolte:[8,10]},
-      {nom:"Aubergine",      type:"legume",    jour:"fruit",  semis:[2,3],   recolte:[7,10]},
-      {nom:"Haricot",        type:"legume",    jour:"fruit",  semis:[5,7],   recolte:[7,10]},
-      {nom:"Pois",           type:"legume",    jour:"fruit",  semis:[3,5],   recolte:[5,7]},
-      {nom:"Fève",           type:"legume",    jour:"fruit",  semis:[10,12], recolte:[5,6]},
-      {nom:"Maïs doux",      type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[8,9]},
-      {nom:"Potiron",        type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[9,10]},
-      {nom:"Courge butternut",type:"legume",   jour:"fruit",  semis:[4,5],   recolte:[9,10]},
-      {nom:"Melon",          type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[7,9]},
-      {nom:"Piment",         type:"legume",    jour:"fruit",  semis:[2,3],   recolte:[8,10]},
+      {nom:"Tomate",         type:"legume",    jour:"fruit",  semis:[2,3],   recolte:[7,10],duree_culture:16},
+      {nom:"Tomate cerise",  type:"legume",    jour:"fruit",  semis:[2,3],   recolte:[7,9],duree_culture:16},
+      {nom:"Courgette",      type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[6,9],duree_culture:10},
+      {nom:"Concombre",      type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[7,9],duree_culture:10},
+          {nom:"Cornichon",       type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[7,9],duree_culture:10},
+      {nom:"Poivron",        type:"legume",    jour:"fruit",  semis:[2,3],   recolte:[8,10],duree_culture:18},
+      {nom:"Aubergine",      type:"legume",    jour:"fruit",  semis:[2,3],   recolte:[7,10],duree_culture:18},
+      {nom:"Haricot",        type:"legume",    jour:"fruit",  semis:[5,7],   recolte:[7,10],duree_culture:10},
+      {nom:"Pois",           type:"legume",    jour:"fruit",  semis:[3,5],   recolte:[5,7],duree_culture:12},
+      {nom:"Fève",           type:"legume",    jour:"fruit",  semis:[10,12], recolte:[5,6],duree_culture:20},
+      {nom:"Maïs doux",      type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[8,9],duree_culture:14},
+      {nom:"Potiron",        type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[9,10],duree_culture:20},
+      {nom:"Courge butternut",type:"legume",   jour:"fruit",  semis:[4,5],   recolte:[9,10],duree_culture:20},
+      {nom:"Melon",          type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[7,9],duree_culture:14},
+      {nom:"Piment",         type:"legume",    jour:"fruit",  semis:[2,3],   recolte:[8,10],duree_culture:18},
       // FRUITS
-      {nom:"Fraise",         type:"fruit",     jour:"fruit",  plantation:[3,4],   recolte:[5,7]},
-      {nom:"Fraise des bois",type:"fruit",     jour:"fruit",  semis:[3,5],   recolte:[5,8]},
-      {nom:"Framboise",      type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[6,9]},
-      {nom:"Groseille",      type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[6,8]},
-      {nom:"Cassis",         type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[7,8]},
-      {nom:"Mûre",           type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[7,9]},
-      {nom:"Myrtille",       type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[7,8]},
-      {nom:"Raisin",         type:"fruit",     jour:"fruit",  plantation:[3,4],   recolte:[9,10]},
-      {nom:"Figue",          type:"fruit",     jour:"fruit",  plantation:[3,5],   recolte:[8,10]},
-      {nom:"Abricot",        type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[6,7]},
-      {nom:"Pêche",          type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[7,9]},
-      {nom:"Cerise",         type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[5,7]},
-      {nom:"Prune",          type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[7,9]},
-      {nom:"Pomme",          type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[8,11]},
-      {nom:"Poire",          type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[8,10]},
-      {nom:"Noisette",       type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[9,10]},
+      {nom:"Fraise",         type:"fruit",     jour:"fruit",  plantation:[3,4],   recolte:[5,7],duree_culture:16},
+      {nom:"Fraise des bois",type:"fruit",     jour:"fruit",  semis:[3,5],   recolte:[5,8],duree_culture:16},
+      {nom:"Framboise",      type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[6,9],duree_culture:52},
+      {nom:"Groseille",      type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[6,8],duree_culture:52},
+      {nom:"Cassis",         type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[7,8],duree_culture:52},
+      {nom:"Mûre",           type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[7,9],duree_culture:52},
+      {nom:"Myrtille",       type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[7,8],duree_culture:52},
+      {nom:"Raisin",         type:"fruit",     jour:"fruit",  plantation:[3,4],   recolte:[9,10],duree_culture:104},
+      {nom:"Figue",          type:"fruit",     jour:"fruit",  plantation:[3,5],   recolte:[8,10],duree_culture:104},
+      {nom:"Abricot",        type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[6,7],duree_culture:104},
+      {nom:"Pêche",          type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[7,9],duree_culture:104},
+      {nom:"Cerise",         type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[5,7],duree_culture:104},
+      {nom:"Prune",          type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[7,9],duree_culture:104},
+      {nom:"Pomme",          type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[8,11],duree_culture:104},
+      {nom:"Poire",          type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[8,10],duree_culture:104},
+      {nom:"Noisette",       type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[9,10],duree_culture:104},
       // AROMATIQUES
-      {nom:"Persil",         type:"aromatique",jour:"feuille",semis:[3,8],   recolte:[5,10]},
-      {nom:"Basilic",        type:"aromatique",jour:"feuille",semis:[4,6],   recolte:[6,9]},
-      {nom:"Thym",           type:"aromatique",jour:"feuille",semis:[3,5],   recolte:[5,10]},
-      {nom:"Romarin",        type:"aromatique",jour:"feuille",semis:[3,5],   recolte:[4,10]},
-      {nom:"Ciboulette",     type:"aromatique",jour:"feuille",semis:[3,6],   recolte:[4,9]},
-      {nom:"Menthe",         type:"aromatique",jour:"feuille",plantation:[4,6],   recolte:[5,9]},
-      {nom:"Coriandre",      type:"aromatique",jour:"feuille",semis:[3,9],   recolte:[4,10]},
-      {nom:"Estragon",       type:"aromatique",jour:"feuille",plantation:[3,5],   recolte:[5,9]},
-      {nom:"Aneth",          type:"aromatique",jour:"feuille",semis:[4,7],   recolte:[6,9]},
-      {nom:"Sarriette",      type:"aromatique",jour:"feuille",semis:[4,6],   recolte:[6,9]},
-      {nom:"Origan",         type:"aromatique",jour:"feuille",semis:[3,5],   recolte:[6,9]},
-      {nom:"Mélisse",        type:"aromatique",jour:"feuille",semis:[3,5],   recolte:[5,9]},
-      {nom:"Sauge",          type:"aromatique",jour:"feuille",semis:[3,5],   recolte:[5,10]},
-      {nom:"Verveine",       type:"aromatique",jour:"feuille",semis:[4,5],   recolte:[6,9]},
-      {nom:"Laurier",        type:"aromatique",jour:"feuille",semis:[3,5],   recolte:[4,11]},
-      {nom:"Lavande",        type:"aromatique",jour:"fleur",  semis:[3,5],   recolte:[6,8]},
-      {nom:"Camomille",      type:"aromatique",jour:"fleur",  semis:[3,5],   recolte:[5,7]},
-      {nom:"Bourrache",      type:"aromatique",jour:"fleur",  semis:[4,6],   recolte:[6,8]},
+      {nom:"Persil",         type:"aromatique",jour:"feuille",semis:[3,8],   recolte:[5,10],duree_culture:12},
+      {nom:"Basilic",        type:"aromatique",jour:"feuille",semis:[4,6],   recolte:[6,9],duree_culture:10},
+      {nom:"Thym",           type:"aromatique",jour:"feuille",semis:[3,5],   recolte:[5,10],duree_culture:16},
+      {nom:"Romarin",        type:"aromatique",jour:"feuille",semis:[3,5],   recolte:[4,10],duree_culture:20},
+      {nom:"Ciboulette",     type:"aromatique",jour:"feuille",semis:[3,6],   recolte:[4,9],duree_culture:12},
+      {nom:"Menthe",         type:"aromatique",jour:"feuille",plantation:[4,6],   recolte:[5,9],duree_culture:12},
+      {nom:"Coriandre",      type:"aromatique",jour:"feuille",semis:[3,9],   recolte:[4,10],duree_culture:8},
+      {nom:"Estragon",       type:"aromatique",jour:"feuille",plantation:[3,5],   recolte:[5,9],duree_culture:14},
+      {nom:"Aneth",          type:"aromatique",jour:"feuille",semis:[4,7],   recolte:[6,9],duree_culture:8},
+      {nom:"Sarriette",      type:"aromatique",jour:"feuille",semis:[4,6],   recolte:[6,9],duree_culture:12},
+      {nom:"Origan",         type:"aromatique",jour:"feuille",semis:[3,5],   recolte:[6,9],duree_culture:14},
+      {nom:"Mélisse",        type:"aromatique",jour:"feuille",semis:[3,5],   recolte:[5,9],duree_culture:12},
+      {nom:"Sauge",          type:"aromatique",jour:"feuille",semis:[3,5],   recolte:[5,10],duree_culture:16},
+      {nom:"Verveine",       type:"aromatique",jour:"feuille",semis:[4,5],   recolte:[6,9],duree_culture:12},
+      {nom:"Laurier",        type:"aromatique",jour:"feuille",semis:[3,5],   recolte:[4,11],duree_culture:52},
+      {nom:"Lavande",        type:"aromatique",jour:"fleur",  semis:[3,5],   recolte:[6,8],duree_culture:20},
+      {nom:"Camomille",      type:"aromatique",jour:"fleur",  semis:[3,5],   recolte:[5,7],duree_culture:10},
+      {nom:"Bourrache",      type:"aromatique",jour:"fleur",  semis:[4,6],   recolte:[6,8],duree_culture:10},
       // FLEURS
-      {nom:"Rose",           type:"fleur",     jour:"fleur",  plantation:[10,3],  recolte:[5,10]},
-      {nom:"Pivoine",        type:"fleur",     jour:"fleur",  plantation:[9,11],  recolte:[5,6]},
-      {nom:"Dahlia",         type:"fleur",     jour:"fleur",  plantation:[3,4],   recolte:[7,10]},
-      {nom:"Tournesol",      type:"fleur",     jour:"fleur",  semis:[4,5],   recolte:[8,9]},
-      {nom:"Cosmos",         type:"fleur",     jour:"fleur",  semis:[4,5],   recolte:[7,10]},
-      {nom:"Zinnia",         type:"fleur",     jour:"fleur",  semis:[4,5],   recolte:[7,10]},
-      {nom:"Souci",          type:"fleur",     jour:"fleur",  semis:[3,5],   recolte:[6,10]},
-      {nom:"Capucine",       type:"fleur",     jour:"fleur",  semis:[4,5],   recolte:[6,9]},
-      {nom:"Pensée",         type:"fleur",     jour:"fleur",  semis:[8,9],   recolte:[10,4]},
-      {nom:"Tulipe",         type:"fleur",     jour:"fleur",  plantation:[9,11],  recolte:[3,5]},
-      {nom:"Narcisse",       type:"fleur",     jour:"fleur",  plantation:[9,11],  recolte:[3,4]},
-      {nom:"Jacinthe",       type:"fleur",     jour:"fleur",  plantation:[9,10],  recolte:[3,4]},
-      {nom:"Iris",           type:"fleur",     jour:"fleur",  plantation:[9,11],  recolte:[4,6]},
-      {nom:"Géranium",       type:"fleur",     jour:"fleur",  semis:[2,3],   recolte:[5,10]},
-      {nom:"Pétunia",        type:"fleur",     jour:"fleur",  semis:[2,3],   recolte:[5,10]},
-      {nom:"Oeillet d'Inde", type:"fleur",     jour:"fleur",  semis:[3,4],   recolte:[6,10]},
-      {nom:"Delphinium",     type:"fleur",     jour:"fleur",  semis:[3,4],   recolte:[6,8]},
-      {nom:"Marguerite",     type:"fleur",     jour:"fleur",  semis:[3,4],   recolte:[5,8]},
-      {nom:"Hortensia",      type:"fleur",     jour:"fleur",  plantation:[3,4],   recolte:[6,9]},
-      {nom:"Jasmin",         type:"fleur",     jour:"fleur",  semis:[3,4],   recolte:[6,8]},
+      {nom:"Rose",           type:"fleur",     jour:"fleur",  plantation:[10,3],  recolte:[5,10],duree_culture:52},
+      {nom:"Pivoine",        type:"fleur",     jour:"fleur",  plantation:[9,11],  recolte:[5,6],duree_culture:52},
+      {nom:"Dahlia",         type:"fleur",     jour:"fleur",  plantation:[3,4],   recolte:[7,10],duree_culture:20},
+      {nom:"Tournesol",      type:"fleur",     jour:"fleur",  semis:[4,5],   recolte:[8,9],duree_culture:14},
+      {nom:"Cosmos",         type:"fleur",     jour:"fleur",  semis:[4,5],   recolte:[7,10],duree_culture:12},
+      {nom:"Zinnia",         type:"fleur",     jour:"fleur",  semis:[4,5],   recolte:[7,10],duree_culture:10},
+      {nom:"Souci",          type:"fleur",     jour:"fleur",  semis:[3,5],   recolte:[6,10],duree_culture:10},
+      {nom:"Capucine",       type:"fleur",     jour:"fleur",  semis:[4,5],   recolte:[6,9],duree_culture:10},
+      {nom:"Pensée",         type:"fleur",     jour:"fleur",  semis:[8,9],   recolte:[10,4],duree_culture:10},
+      {nom:"Tulipe",         type:"fleur",     jour:"fleur",  plantation:[9,11],  recolte:[3,5],duree_culture:24},
+      {nom:"Narcisse",       type:"fleur",     jour:"fleur",  plantation:[9,11],  recolte:[3,4],duree_culture:20},
+      {nom:"Jacinthe",       type:"fleur",     jour:"fleur",  plantation:[9,10],  recolte:[3,4],duree_culture:16},
+      {nom:"Iris",           type:"fleur",     jour:"fleur",  plantation:[9,11],  recolte:[4,6],duree_culture:20},
+      {nom:"Géranium",       type:"fleur",     jour:"fleur",  semis:[2,3],   recolte:[5,10],duree_culture:12},
+      {nom:"Pétunia",        type:"fleur",     jour:"fleur",  semis:[2,3],   recolte:[5,10],duree_culture:12},
+      {nom:"Oeillet d'Inde", type:"fleur",     jour:"fleur",  semis:[3,4],   recolte:[6,10],duree_culture:10},
+      {nom:"Delphinium",     type:"fleur",     jour:"fleur",  semis:[3,4],   recolte:[6,8],duree_culture:20},
+      {nom:"Marguerite",     type:"fleur",     jour:"fleur",  semis:[3,4],   recolte:[5,8],duree_culture:16},
+      {nom:"Hortensia",      type:"fleur",     jour:"fleur",  plantation:[3,4],   recolte:[6,9],duree_culture:52},
+      {nom:"Jasmin",         type:"fleur",     jour:"fleur",  semis:[3,4],   recolte:[6,8],duree_culture:52},
       // LÉGUMES - nouvelles variantes du PDF
-      {nom:"Carotte d'hiver",    type:"legume",    jour:"racine", semis:[6,7],   recolte:[10,1]},
-      {nom:"Cerfeuil",           type:"legume",    jour:"feuille",semis:[3,8],   recolte:[4,10]},
-      {nom:"Cive",               type:"legume",    jour:"feuille",semis:[3,5],   recolte:[5,9]},
-      {nom:"Cyclanthère",        type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[7,9]},
-      {nom:"Épinard malabar",    type:"legume",    jour:"feuille",semis:[4,5],   recolte:[6,10]},
-      {nom:"Maïs",               type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[8,9]},
-      {nom:"Oignon blanc",       type:"legume",    jour:"racine", semis:[3,4],   recolte:[7,9]},
-      {nom:"Petit pois",         type:"legume",    jour:"fruit",  semis:[2,4],   recolte:[5,7]},
-      {nom:"Rhubarbe",           type:"legume",    jour:"feuille",semis:[3,4],   recolte:[4,6]},
-      {nom:"Rutabaga",           type:"legume",    jour:"racine", semis:[5,6],   recolte:[10,12]},
-      {nom:"Laitue d'hiver",    type:"legume",    jour:"feuille",semis:[8,9],   recolte:[10,3]},
+      {nom:"Carotte d'hiver",    type:"legume",    jour:"racine", semis:[6,7],   recolte:[10,1],duree_culture:16},
+      {nom:"Cerfeuil",           type:"legume",    jour:"feuille",semis:[3,8],   recolte:[4,10],duree_culture:8},
+      {nom:"Cive",               type:"legume",    jour:"feuille",semis:[3,5],   recolte:[5,9],duree_culture:16},
+      {nom:"Cyclanthère",        type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[7,9],duree_culture:14},
+      {nom:"Épinard malabar",    type:"legume",    jour:"feuille",semis:[4,5],   recolte:[6,10],duree_culture:10},
+      {nom:"Maïs",               type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[8,9],duree_culture:14},
+      {nom:"Oignon blanc",       type:"legume",    jour:"racine", semis:[3,4],   recolte:[7,9],duree_culture:12},
+      {nom:"Petit pois",         type:"legume",    jour:"fruit",  semis:[2,4],   recolte:[5,7],duree_culture:10},
+      {nom:"Rhubarbe",           type:"legume",    jour:"feuille",semis:[3,4],   recolte:[4,6],duree_culture:52},
+      {nom:"Rutabaga",           type:"legume",    jour:"racine", semis:[5,6],   recolte:[10,12],duree_culture:14},
+      {nom:"Laitue d'hiver",    type:"legume",    jour:"feuille",semis:[8,9],   recolte:[10,3],duree_culture:12},
       // AROMATIQUES / MÉDICINALES - nouvelles du PDF
-      {nom:"Agastache",          type:"aromatique",jour:"fleur",  semis:[3,5],   recolte:[7,9]},
-      {nom:"Coriandre tardive",   type:"aromatique",jour:"feuille",semis:[2,4],   recolte:[3,9]},
-      {nom:"Livèche",            type:"aromatique",jour:"feuille",semis:[2,3],   recolte:[5,9]},
+      {nom:"Agastache",          type:"aromatique",jour:"fleur",  semis:[3,5],   recolte:[7,9],duree_culture:14},
+      {nom:"Coriandre tardive",   type:"aromatique",jour:"feuille",semis:[2,4],   recolte:[3,9],duree_culture:8},
+      {nom:"Livèche",            type:"aromatique",jour:"feuille",semis:[2,3],   recolte:[5,9],duree_culture:20},
       // FLEURS - nouvelles du PDF
-      {nom:"Ancolie",            type:"fleur",     jour:"fleur",  semis:[3,4],   recolte:[5,6]},
-      {nom:"Capucine tubéreuse", type:"fleur",     jour:"fleur",  semis:[4,5],   recolte:[9,10]},
-      {nom:"Hémérocalle",        type:"fleur",     jour:"fleur",  semis:[3,5],   recolte:[6,8]},
+      {nom:"Ancolie",            type:"fleur",     jour:"fleur",  semis:[3,4],   recolte:[5,6],duree_culture:20},
+      {nom:"Capucine tubéreuse", type:"fleur",     jour:"fleur",  semis:[4,5],   recolte:[9,10],duree_culture:16},
+      {nom:"Hémérocalle",        type:"fleur",     jour:"fleur",  semis:[3,5],   recolte:[6,8],duree_culture:52},
       // ENGRAIS VERTS
-      {nom:"Trèfle incarnat",    type:"fleur",     jour:"fleur",  semis:[8,9],   recolte:[4,5]},
+      {nom:"Trèfle incarnat",    type:"fleur",     jour:"fleur",  semis:[8,9],   recolte:[4,5],duree_culture:8},
 
       // ══ TAILLE ══
-      {nom:"Tomate (taille)",          type:"taille", jour:"fruit",   taille:[5,9],  tailleType:"ébourgeonnage",              tailleIntensite:"régulière", tailleNote:"Supprimer les gourmands entre tige et feuille, chaque semaine."},
-      {nom:"Tomate cerise (taille)",   type:"taille", jour:"fruit",   taille:[5,9],  tailleType:"pincement",                  tailleIntensite:"légère",    tailleNote:"Pincer les gourmands, laisser 2-3 tiges."},
-      {nom:"Aubergine (taille)",        type:"taille", jour:"fruit",   taille:[5,8],  tailleType:"taille en V",                tailleIntensite:"moyenne",   tailleNote:"Garder 2 tiges principales, supprimer les autres."},
-      {nom:"Courgette (taille)",        type:"taille", jour:"fruit",   taille:[5,9],  tailleType:"pincement apex",             tailleIntensite:"légère",    tailleNote:"Pincer l apex quand la plante est trop vigoureuse."},
-      {nom:"Concombre (taille)",        type:"taille", jour:"fruit",   taille:[5,9],  tailleType:"palissage et pincement",     tailleIntensite:"régulière", tailleNote:"Pincer après la 2e feuille au-dessus de chaque fruit."},
-      {nom:"Melon (taille)",            type:"taille", jour:"fruit",   taille:[5,8],  tailleType:"pincement",                  tailleIntensite:"forte",     tailleNote:"Pincer la tige principale à 5 feuilles, garder 2-3 fruits."},
-      {nom:"Potiron (taille)",          type:"taille", jour:"fruit",   taille:[5,8],  tailleType:"pincement",                  tailleIntensite:"moyenne",   tailleNote:"Pincer les tiges secondaires, garder 2-3 fruits par pied."},
-      {nom:"Courge butternut (taille)", type:"taille", jour:"fruit",   taille:[5,8],  tailleType:"pincement",                  tailleIntensite:"moyenne",   tailleNote:"Même principe que le potiron."},
-      {nom:"Poivron (taille)",          type:"taille", jour:"fruit",   taille:[5,8],  tailleType:"taille en Y",                tailleIntensite:"légère",    tailleNote:"Supprimer la première fleur reine, garder 2 tiges."},
-      {nom:"Romarin (taille)",          type:"taille", jour:"fleur",   taille:[3,4],  tailleType:"taille après floraison",     tailleIntensite:"légère",    tailleNote:"Ne jamais couper dans le vieux bois. Raccourcir d un tiers."},
-      {nom:"Thym (taille)",             type:"taille", jour:"fleur",   taille:[3,4],  tailleType:"taille après floraison",     tailleIntensite:"légère",    tailleNote:"Couper les tiges fleuries, conserver le vieux bois."},
-      {nom:"Sauge (taille)",            type:"taille", jour:"fleur",   taille:[3,4],  tailleType:"taille printanière",         tailleIntensite:"moyenne",   tailleNote:"Raccourcir d un tiers au printemps pour densifier."},
-      {nom:"Lavande (taille)",          type:"taille", jour:"fleur",   taille:[8,9],  tailleType:"taille après floraison",     tailleIntensite:"moyenne",   tailleNote:"Couper sous les fleurs fanées, jamais dans le vieux bois."},
-      {nom:"Framboisier",               type:"taille", jour:"fruit",   taille:[10,11],tailleType:"suppression vieilles tiges", tailleIntensite:"forte",     tailleNote:"Couper au ras du sol les tiges ayant fructifié."},
-      {nom:"Groseillier",               type:"taille", jour:"fruit",   taille:[11,2], tailleType:"rajeunissement",             tailleIntensite:"moyenne",   tailleNote:"Supprimer 1/3 des vieilles tiges chaque année."},
-      {nom:"Cassissier",                type:"taille", jour:"fruit",   taille:[11,2], tailleType:"rajeunissement",             tailleIntensite:"moyenne",   tailleNote:"Même principe que le groseillier."},
-      {nom:"Mûrier",                    type:"taille", jour:"fruit",   taille:[2,3],  tailleType:"formation",                  tailleIntensite:"légère",    tailleNote:"Tailler les jeunes pousses latérales à 5 feuilles."},
-      {nom:"Kiwi",                      type:"taille", jour:"fruit",   taille:[1,2],  tailleType:"fructification",             tailleIntensite:"forte",     tailleNote:"Tailler en hiver, garder les rameaux courts de l année."},
-      {nom:"Pommier",                   type:"taille", jour:"fruit",   taille:[1,3],  tailleType:"fructification",             tailleIntensite:"forte",     tailleNote:"Supprimer les gourmands, éclaircir le centre, équilibrer."},
-      {nom:"Poirier",                   type:"taille", jour:"fruit",   taille:[1,3],  tailleType:"fructification",             tailleIntensite:"forte",     tailleNote:"Taille similaire au pommier, favoriser les rameaux courts."},
-      {nom:"Prunier",                   type:"taille", jour:"fruit",   taille:[2,3],  tailleType:"fructification",             tailleIntensite:"moyenne",   tailleNote:"Tailler légèrement, sensible aux maladies fongiques."},
-      {nom:"Cerisier",                  type:"taille", jour:"fruit",   taille:[6,8],  tailleType:"après récolte",              tailleIntensite:"légère",    tailleNote:"Tailler après récolte uniquement, éviter l hiver."},
-      {nom:"Pêcher",                    type:"taille", jour:"fruit",   taille:[2,3],  tailleType:"fructification",             tailleIntensite:"forte",     tailleNote:"Renouveler chaque année, garder les pousses de l année."},
-      {nom:"Abricotier",                type:"taille", jour:"fruit",   taille:[6,7],  tailleType:"après récolte",              tailleIntensite:"légère",    tailleNote:"Tailler juste après récolte, éviter l automne humide."},
-      {nom:"Figuier",                   type:"taille", jour:"fruit",   taille:[2,3],  tailleType:"formation",                  tailleIntensite:"légère",    tailleNote:"Couper les extrémités pour ramifier, limiter la hauteur."},
-      {nom:"Noisetier",                 type:"taille", jour:"fruit",   taille:[1,2],  tailleType:"rajeunissement",             tailleIntensite:"forte",     tailleNote:"Supprimer les drageons et vieux bois tous les 3 ans."},
-      {nom:"Vigne",                     type:"taille", jour:"fruit",   taille:[1,3],  tailleType:"taille Guyot",               tailleIntensite:"forte",     tailleNote:"Garder 1 baguette de 8-10 yeux et 1 courson de 2 yeux."},
-      {nom:"Rosier",                    type:"taille", jour:"fleur",   taille:[2,3],  tailleType:"taille printanière",         tailleIntensite:"forte",     tailleNote:"Tailler court 3-4 yeux pour les hybrides, long pour les grimpants."},
-      {nom:"Hortensia (taille)",        type:"taille", jour:"fleur",   taille:[3,4],  tailleType:"taille légère",              tailleIntensite:"légère",    tailleNote:"Couper juste sous les vieilles fleurs, ne pas tailler court."},
-      {nom:"Jasmin (taille)",           type:"taille", jour:"fleur",   taille:[3,4],  tailleType:"après floraison",            tailleIntensite:"moyenne",   tailleNote:"Raccourcir les tiges après floraison, aérer le centre."},
-      {nom:"Clématite",                 type:"taille", jour:"fleur",   taille:[2,3],  tailleType:"selon groupe",               tailleIntensite:"variable",  tailleNote:"Groupe 1 pas de taille. Groupe 2 légère. Groupe 3 sévère."},
-      {nom:"Glycine",                   type:"taille", jour:"fleur",   taille:[1,2],  tailleType:"double taille",              tailleIntensite:"forte",     tailleNote:"Tailler en été laisser 6 feuilles puis en hiver laisser 2 yeux."},
-      {nom:"Laurier (haie)",            type:"taille", jour:"feuille", taille:[3,4],  tailleType:"taille de forme",            tailleIntensite:"moyenne",   tailleNote:"Tailler 1-2 fois par an au sécateur, éviter le taille-haie."},
-      {nom:"Buis",                      type:"taille", jour:"feuille", taille:[5,6],  tailleType:"taille de forme",            tailleIntensite:"moyenne",   tailleNote:"Tailler en mai-juin, éviter la chaleur et le gel."},
-      {nom:"If",                        type:"taille", jour:"feuille", taille:[8,9],  tailleType:"taille de forme",            tailleIntensite:"forte",     tailleNote:"Supporte les tailles sévères, repousse bien."},
-      {nom:"Charme",                    type:"taille", jour:"feuille", taille:[8,9],  tailleType:"taille de forme",            tailleIntensite:"forte",     tailleNote:"Tailler fin été pour garder les feuilles mortes en hiver."},
+      {nom:"Tomate (taille)",          type:"taille", jour:"fruit",   taille:[5,9],  tailleType:"ébourgeonnage",              tailleIntensite:"régulière", tailleNote:"Supprimer les gourmands entre tige et feuille, chaque semaine.",duree_culture:12},
+      {nom:"Tomate cerise (taille)",   type:"taille", jour:"fruit",   taille:[5,9],  tailleType:"pincement",                  tailleIntensite:"légère",    tailleNote:"Pincer les gourmands, laisser 2-3 tiges.",duree_culture:12},
+      {nom:"Aubergine (taille)",        type:"taille", jour:"fruit",   taille:[5,8],  tailleType:"taille en V",                tailleIntensite:"moyenne",   tailleNote:"Garder 2 tiges principales, supprimer les autres.",duree_culture:12},
+      {nom:"Courgette (taille)",        type:"taille", jour:"fruit",   taille:[5,9],  tailleType:"pincement apex",             tailleIntensite:"légère",    tailleNote:"Pincer l apex quand la plante est trop vigoureuse.",duree_culture:12},
+      {nom:"Concombre (taille)",        type:"taille", jour:"fruit",   taille:[5,9],  tailleType:"palissage et pincement",     tailleIntensite:"régulière", tailleNote:"Pincer après la 2e feuille au-dessus de chaque fruit.",duree_culture:12},
+      {nom:"Melon (taille)",            type:"taille", jour:"fruit",   taille:[5,8],  tailleType:"pincement",                  tailleIntensite:"forte",     tailleNote:"Pincer la tige principale à 5 feuilles, garder 2-3 fruits.",duree_culture:12},
+      {nom:"Potiron (taille)",          type:"taille", jour:"fruit",   taille:[5,8],  tailleType:"pincement",                  tailleIntensite:"moyenne",   tailleNote:"Pincer les tiges secondaires, garder 2-3 fruits par pied.",duree_culture:12},
+      {nom:"Courge butternut (taille)", type:"taille", jour:"fruit",   taille:[5,8],  tailleType:"pincement",                  tailleIntensite:"moyenne",   tailleNote:"Même principe que le potiron.",duree_culture:12},
+      {nom:"Poivron (taille)",          type:"taille", jour:"fruit",   taille:[5,8],  tailleType:"taille en Y",                tailleIntensite:"légère",    tailleNote:"Supprimer la première fleur reine, garder 2 tiges.",duree_culture:12},
+      {nom:"Romarin (taille)",          type:"taille", jour:"fleur",   taille:[3,4],  tailleType:"taille après floraison",     tailleIntensite:"légère",    tailleNote:"Ne jamais couper dans le vieux bois. Raccourcir d un tiers.",duree_culture:12},
+      {nom:"Thym (taille)",             type:"taille", jour:"fleur",   taille:[3,4],  tailleType:"taille après floraison",     tailleIntensite:"légère",    tailleNote:"Couper les tiges fleuries, conserver le vieux bois.",duree_culture:0},
+      {nom:"Sauge (taille)",            type:"taille", jour:"fleur",   taille:[3,4],  tailleType:"taille printanière",         tailleIntensite:"moyenne",   tailleNote:"Raccourcir d un tiers au printemps pour densifier.",duree_culture:0},
+      {nom:"Lavande (taille)",          type:"taille", jour:"fleur",   taille:[8,9],  tailleType:"taille après floraison",     tailleIntensite:"moyenne",   tailleNote:"Couper sous les fleurs fanées, jamais dans le vieux bois.",duree_culture:0},
+      {nom:"Framboisier",               type:"taille", jour:"fruit",   taille:[10,11],tailleType:"suppression vieilles tiges", tailleIntensite:"forte",     tailleNote:"Couper au ras du sol les tiges ayant fructifié.",duree_culture:52},
+      {nom:"Groseillier",               type:"taille", jour:"fruit",   taille:[11,2], tailleType:"rajeunissement",             tailleIntensite:"moyenne",   tailleNote:"Supprimer 1/3 des vieilles tiges chaque année.",duree_culture:52},
+      {nom:"Cassissier",                type:"taille", jour:"fruit",   taille:[11,2], tailleType:"rajeunissement",             tailleIntensite:"moyenne",   tailleNote:"Même principe que le groseillier.",duree_culture:52},
+      {nom:"Mûrier",                    type:"taille", jour:"fruit",   taille:[2,3],  tailleType:"formation",                  tailleIntensite:"légère",    tailleNote:"Tailler les jeunes pousses latérales à 5 feuilles.",duree_culture:52},
+      {nom:"Kiwi",                      type:"taille", jour:"fruit",   taille:[1,2],  tailleType:"fructification",             tailleIntensite:"forte",     tailleNote:"Tailler en hiver, garder les rameaux courts de l année.",duree_culture:104},
+      {nom:"Pommier",                   type:"taille", jour:"fruit",   taille:[1,3],  tailleType:"fructification",             tailleIntensite:"forte",     tailleNote:"Supprimer les gourmands, éclaircir le centre, équilibrer.",duree_culture:104},
+      {nom:"Poirier",                   type:"taille", jour:"fruit",   taille:[1,3],  tailleType:"fructification",             tailleIntensite:"forte",     tailleNote:"Taille similaire au pommier, favoriser les rameaux courts.",duree_culture:104},
+      {nom:"Prunier",                   type:"taille", jour:"fruit",   taille:[2,3],  tailleType:"fructification",             tailleIntensite:"moyenne",   tailleNote:"Tailler légèrement, sensible aux maladies fongiques.",duree_culture:104},
+      {nom:"Cerisier",                  type:"taille", jour:"fruit",   taille:[6,8],  tailleType:"après récolte",              tailleIntensite:"légère",    tailleNote:"Tailler après récolte uniquement, éviter l hiver.",duree_culture:104},
+      {nom:"Pêcher",                    type:"taille", jour:"fruit",   taille:[2,3],  tailleType:"fructification",             tailleIntensite:"forte",     tailleNote:"Renouveler chaque année, garder les pousses de l année.",duree_culture:104},
+      {nom:"Abricotier",                type:"taille", jour:"fruit",   taille:[6,7],  tailleType:"après récolte",              tailleIntensite:"légère",    tailleNote:"Tailler juste après récolte, éviter l automne humide.",duree_culture:104},
+      {nom:"Figuier",                   type:"taille", jour:"fruit",   taille:[2,3],  tailleType:"formation",                  tailleIntensite:"légère",    tailleNote:"Couper les extrémités pour ramifier, limiter la hauteur.",duree_culture:104},
+      {nom:"Noisetier",                 type:"taille", jour:"fruit",   taille:[1,2],  tailleType:"rajeunissement",             tailleIntensite:"forte",     tailleNote:"Supprimer les drageons et vieux bois tous les 3 ans.",duree_culture:104},
+      {nom:"Vigne",                     type:"taille", jour:"fruit",   taille:[1,3],  tailleType:"taille Guyot",               tailleIntensite:"forte",     tailleNote:"Garder 1 baguette de 8-10 yeux et 1 courson de 2 yeux.",duree_culture:104},
+      {nom:"Rosier",                    type:"taille", jour:"fleur",   taille:[2,3],  tailleType:"taille printanière",         tailleIntensite:"forte",     tailleNote:"Tailler court 3-4 yeux pour les hybrides, long pour les grimpants.",duree_culture:52},
+      {nom:"Hortensia (taille)",        type:"taille", jour:"fleur",   taille:[3,4],  tailleType:"taille légère",              tailleIntensite:"légère",    tailleNote:"Couper juste sous les vieilles fleurs, ne pas tailler court.",duree_culture:0},
+      {nom:"Jasmin (taille)",           type:"taille", jour:"fleur",   taille:[3,4],  tailleType:"après floraison",            tailleIntensite:"moyenne",   tailleNote:"Raccourcir les tiges après floraison, aérer le centre.",duree_culture:0},
+      {nom:"Clématite",                 type:"taille", jour:"fleur",   taille:[2,3],  tailleType:"selon groupe",               tailleIntensite:"variable",  tailleNote:"Groupe 1 pas de taille. Groupe 2 légère. Groupe 3 sévère.",duree_culture:52},
+      {nom:"Glycine",                   type:"taille", jour:"fleur",   taille:[1,2],  tailleType:"double taille",              tailleIntensite:"forte",     tailleNote:"Tailler en été laisser 6 feuilles puis en hiver laisser 2 yeux.",duree_culture:52},
+      {nom:"Laurier (haie)",            type:"taille", jour:"feuille", taille:[3,4],  tailleType:"taille de forme",            tailleIntensite:"moyenne",   tailleNote:"Tailler 1-2 fois par an au sécateur, éviter le taille-haie.",duree_culture:52},
+      {nom:"Buis",                      type:"taille", jour:"feuille", taille:[5,6],  tailleType:"taille de forme",            tailleIntensite:"moyenne",   tailleNote:"Tailler en mai-juin, éviter la chaleur et le gel.",duree_culture:52},
+      {nom:"If",                        type:"taille", jour:"feuille", taille:[8,9],  tailleType:"taille de forme",            tailleIntensite:"forte",     tailleNote:"Supporte les tailles sévères, repousse bien.",duree_culture:52},
+      {nom:"Charme",                    type:"taille", jour:"feuille", taille:[8,9],  tailleType:"taille de forme",            tailleIntensite:"forte",     tailleNote:"Tailler fin été pour garder les feuilles mortes en hiver.",duree_culture:52},
     ];
 
     // ── CALCUL LUNAIRE ──
@@ -1764,9 +1768,9 @@ function checkPassword(){
             ${hidden.length > 0 ? `
               <span id="${uid}_more" style="cursor:pointer;background:rgba(140,192,80,0.12);border:1px solid rgba(140,192,80,0.3);border-radius:20px;padding:3px 10px;font-size:.88rem;color:var(--gold)" onclick="
                 document.getElementById('${uid}_more').style.display='none';
-                document.getElementById('${uid}_hidden').style.display='contents';
+                document.getElementById('${uid}_hidden').style.display='flex';
               ">+${hidden.length} autres ▾</span>
-              <span id="${uid}_hidden" style="display:none;contents:flex;flex-wrap:wrap;gap:6px;">
+              <span id="${uid}_hidden" style="display:none;flex-wrap:wrap;gap:6px;">
                 ${hidden.map(p=>`<span style="${tagStyle}">${p.nom}</span>`).join('')}
               </span>` : ''}
           </div>`;
@@ -2713,26 +2717,26 @@ err=>{
     // Durée de germination et délai avant repiquage (semaines)
     const plantsInterieur = [
       // nom, semisIntMois(1-based), repiquageMois, germSem, dureeAvantRepiSem, lieu, notesSerre
-      {nom:"Tomate",        semisInt:[2,3],  repiMois:[5,5],  germ:1, duree:8,  lieu:"serre",   note:"Nécessite 20°C min pour germer"},
-      {nom:"Tomate cerise", semisInt:[2,3],  repiMois:[5,5],  germ:1, duree:8,  lieu:"serre",   note:"Très gourmande en lumière"},
-      {nom:"Poivron",       semisInt:[2,3],  repiMois:[5,6],  germ:2, duree:10, lieu:"serre",   note:"Germination lente, 22–25°C"},
-      {nom:"Aubergine",     semisInt:[2,3],  repiMois:[5,6],  germ:2, duree:10, lieu:"serre",   note:"Chaleur constante indispensable"},
-      {nom:"Piment",        semisInt:[2,3],  repiMois:[5,6],  germ:2, duree:10, lieu:"serre",   note:"Similaire au poivron"},
-      {nom:"Courgette",     semisInt:[4,4],  repiMois:[5,6],  germ:1, duree:3,  lieu:"fenetre", note:"Croissance rapide, ne pas semer trop tôt"},
-      {nom:"Concombre",     semisInt:[4,4],  repiMois:[5,6],  germ:1, duree:3,  lieu:"fenetre", note:"Repiquer sans abîmer les racines"},
-      {nom:"Melon",         semisInt:[4,4],  repiMois:[5,6],  germ:1, duree:4,  lieu:"serre",   note:"Chaleur 20°C+ indispensable"},
-      {nom:"Céleri-rave",   semisInt:[2,3],  repiMois:[4,5],  germ:2, duree:10, lieu:"fenetre", note:"Semis superficiel, ne pas couvrir"},
-      {nom:"Céleri branche",semisInt:[2,3],  repiMois:[4,5],  germ:2, duree:10, lieu:"fenetre", note:"Semis superficiel"},
-      {nom:"Poireau",       semisInt:[2,3],  repiMois:[4,5],  germ:2, duree:8,  lieu:"fenetre", note:"Repiquer en jabot profond"},
-      {nom:"Chou-fleur",    semisInt:[3,4],  repiMois:[5,6],  germ:1, duree:4,  lieu:"fenetre", note:"Sensible aux transplantations"},
-      {nom:"Brocoli",       semisInt:[3,4],  repiMois:[5,6],  germ:1, duree:4,  lieu:"fenetre", note:"Rustique, supporte le froid"},
-      {nom:"Laitue",        semisInt:[2,3],  repiMois:[3,4],  germ:1, duree:4,  lieu:"fenetre", note:"Supporte les légères gelées"},
-      {nom:"Basilic",       semisInt:[3,4],  repiMois:[5,6],  germ:1, duree:6,  lieu:"fenetre", note:"Craint le moindre gel, 18°C min"},
-      {nom:"Persil",        semisInt:[2,4],  repiMois:[4,5],  germ:3, duree:8,  lieu:"fenetre", note:"Germination très lente (3 sem)"},
-      {nom:"Géranium",      semisInt:[1,2],  repiMois:[5,6],  germ:2, duree:12, lieu:"fenetre", note:"Besoin de lumière intense"},
-      {nom:"Pétunia",       semisInt:[2,3],  repiMois:[5,5],  germ:1, duree:8,  lieu:"fenetre", note:"Graines très fines, ne pas couvrir"},
-      {nom:"Oeillet d'Inde",semisInt:[3,4],  repiMois:[5,5],  germ:1, duree:6,  lieu:"fenetre", note:"Semis facile, très rustique"},
-      {nom:"Dahlia",        semisInt:[3,4],  repiMois:[5,5],  germ:1, duree:6,  lieu:"fenetre", note:"Tuber en terre après les Saints de Glace"},
+      {nom:"Tomate",        semisInt:[2,3],  repiMois:[5,5],  germ:1, duree:8,  lieu:"serre",   note:"Nécessite 20°C min pour germer",duree_culture:16},
+      {nom:"Tomate cerise", semisInt:[2,3],  repiMois:[5,5],  germ:1, duree:8,  lieu:"serre",   note:"Très gourmande en lumière",duree_culture:16},
+      {nom:"Poivron",       semisInt:[2,3],  repiMois:[5,6],  germ:2, duree:10, lieu:"serre",   note:"Germination lente, 22–25°C",duree_culture:18},
+      {nom:"Aubergine",     semisInt:[2,3],  repiMois:[5,6],  germ:2, duree:10, lieu:"serre",   note:"Chaleur constante indispensable",duree_culture:18},
+      {nom:"Piment",        semisInt:[2,3],  repiMois:[5,6],  germ:2, duree:10, lieu:"serre",   note:"Similaire au poivron",duree_culture:18},
+      {nom:"Courgette",     semisInt:[4,4],  repiMois:[5,6],  germ:1, duree:3,  lieu:"fenetre", note:"Croissance rapide, ne pas semer trop tôt",duree_culture:10},
+      {nom:"Concombre",     semisInt:[4,4],  repiMois:[5,6],  germ:1, duree:3,  lieu:"fenetre", note:"Repiquer sans abîmer les racines",duree_culture:10},
+      {nom:"Melon",         semisInt:[4,4],  repiMois:[5,6],  germ:1, duree:4,  lieu:"serre",   note:"Chaleur 20°C+ indispensable",duree_culture:14},
+      {nom:"Céleri-rave",   semisInt:[2,3],  repiMois:[4,5],  germ:2, duree:10, lieu:"fenetre", note:"Semis superficiel, ne pas couvrir",duree_culture:24},
+      {nom:"Céleri branche",semisInt:[2,3],  repiMois:[4,5],  germ:2, duree:10, lieu:"fenetre", note:"Semis superficiel",duree_culture:20},
+      {nom:"Poireau",       semisInt:[2,3],  repiMois:[4,5],  germ:2, duree:8,  lieu:"fenetre", note:"Repiquer en jabot profond",duree_culture:24},
+      {nom:"Chou-fleur",    semisInt:[3,4],  repiMois:[5,6],  germ:1, duree:4,  lieu:"fenetre", note:"Sensible aux transplantations",duree_culture:16},
+      {nom:"Brocoli",       semisInt:[3,4],  repiMois:[5,6],  germ:1, duree:4,  lieu:"fenetre", note:"Rustique, supporte le froid",duree_culture:14},
+      {nom:"Laitue",        semisInt:[2,3],  repiMois:[3,4],  germ:1, duree:4,  lieu:"fenetre", note:"Supporte les légères gelées",duree_culture:8},
+      {nom:"Basilic",       semisInt:[3,4],  repiMois:[5,6],  germ:1, duree:6,  lieu:"fenetre", note:"Craint le moindre gel, 18°C min",duree_culture:10},
+      {nom:"Persil",        semisInt:[2,4],  repiMois:[4,5],  germ:3, duree:8,  lieu:"fenetre", note:"Germination très lente (3 sem)",duree_culture:12},
+      {nom:"Géranium",      semisInt:[1,2],  repiMois:[5,6],  germ:2, duree:12, lieu:"fenetre", note:"Besoin de lumière intense",duree_culture:12},
+      {nom:"Pétunia",       semisInt:[2,3],  repiMois:[5,5],  germ:1, duree:8,  lieu:"fenetre", note:"Graines très fines, ne pas couvrir",duree_culture:12},
+      {nom:"Oeillet d'Inde",semisInt:[3,4],  repiMois:[5,5],  germ:1, duree:6,  lieu:"fenetre", note:"Semis facile, très rustique",duree_culture:10},
+      {nom:"Dahlia",        semisInt:[3,4],  repiMois:[5,5],  germ:1, duree:6,  lieu:"fenetre", note:"Tuber en terre après les Saints de Glace",duree_culture:20},
     ];
 
     // Date de dernier gel selon zone climatique — dynamique
@@ -4602,12 +4606,12 @@ const POT_SVG_PLANTS={
   '<path d="M32,52 C28,46 26,38 26,30 C28,24 30,22 32,28 C34,22 36,24 38,30 C38,38 36,46 32,52Z" fill="#4a9828" opacity=".7"/>'+
   '<path d="M28,56 C26,68 26,78 28,84 C29,88 31,91 32,92 C33,91 35,88 36,84 C38,78 38,68 36,56Z" fill="url(#gcar)"/>'+
   '<path d="M29,62 C28,70 28,78 29,84" stroke="rgba(255,200,100,0.28)" stroke-width="1.8" fill="none" stroke-linecap="round"/>'+
-  '<path d="M28,64 C32,62 36,64" stroke="#b05018" stroke-width="0.7" fill="none" opacity=".45"/>'+
-  '<path d="M28,72 C32,70 36,72" stroke="#b05018" stroke-width="0.7" fill="none" opacity=".45"/>'+
-  '<path d="M28,80 C32,78 36,80" stroke="#b05018" stroke-width="0.7" fill="none" opacity=".4"/>'+
-  '<path d="M32,92 C31,97 32,100" stroke="#8a3808" stroke-width="1.4" fill="none" stroke-linecap="round"/>'+
-  '<path d="M30,86 C27,90 27,95" stroke="#8a3808" stroke-width="0.9" fill="none"/>'+
-  '<path d="M34,86 C37,90 37,95" stroke="#8a3808" stroke-width="0.9" fill="none"/>',
+  '<path d="M28,64 Q32,62 36,64" stroke="#b05018" stroke-width="0.7" fill="none" opacity=".45"/>'+
+  '<path d="M28,72 Q32,70 36,72" stroke="#b05018" stroke-width="0.7" fill="none" opacity=".45"/>'+
+  '<path d="M28,80 Q32,78 36,80" stroke="#b05018" stroke-width="0.7" fill="none" opacity=".4"/>'+
+  '<path d="M32,92 Q31,97 32,100" stroke="#8a3808" stroke-width="1.4" fill="none" stroke-linecap="round"/>'+
+  '<path d="M30,86 Q27,90 27,95" stroke="#8a3808" stroke-width="0.9" fill="none"/>'+
+  '<path d="M34,86 Q37,90 37,95" stroke="#8a3808" stroke-width="0.9" fill="none"/>',
 
 'Radis':
   '<path d="M32,42 C24,34 18,24 16,12 C20,8 24,10 26,18 C22,8 28,4 30,16 C28,4 34,4 34,16 C36,4 42,8 38,18 C40,10 44,8 48,12 C46,24 40,34 32,42Z" fill="#2a5e10"/>'+
@@ -4682,18 +4686,18 @@ const POT_SVG_PLANTS={
   '<path d="M32,20 C38,18 42,16 46,12 C42,8 38,10 36,16 C40,8 36,4 32,12Z" fill="#2a6818"/>'+
   '<path d="M14,52 C12,40 14,28 18,22 C22,18 26,18 28,24 C24,18 26,12 32,18 C38,12 40,18 36,24 C38,18 42,18 46,22 C50,28 52,40 50,52 C48,62 42,68 32,70 C22,68 16,62 14,52Z" fill="url(#gcuc)"/>'+
   '<ellipse cx="24" cy="34" rx="6" ry="10" fill="rgba(200,255,150,0.22)" transform="rotate(-15,24,34)"/>'+
-  '<path d="M18,42 C22,40 26,42" stroke="#2a6010" stroke-width="0.8" fill="none" opacity=".4"/>'+
-  '<path d="M36,38 C40,36 44,38" stroke="#2a6010" stroke-width="0.8" fill="none" opacity=".4"/>',
+  '<path d="M18,42 Q22,40 26,42" stroke="#2a6010" stroke-width="0.8" fill="none" opacity=".4"/>'+
+  '<path d="M36,38 Q40,36 44,38" stroke="#2a6010" stroke-width="0.8" fill="none" opacity=".4"/>',
 
 'Cornichon':
   '<path d="M32,18 C28,14 26,10 28,6 C30,4 34,4 36,6 C38,10 36,14 32,18Z" fill="#2a6818"/>'+
   '<path d="M18,56 C16,44 18,32 22,26 C25,22 29,22 30,28 C27,22 30,16 32,22 C34,16 37,22 34,28 C35,22 39,22 42,26 C46,32 48,44 46,56 C44,64 39,70 32,72 C25,70 20,64 18,56Z" fill="url(#gcuc)"/>'+
-  '<path d="M18,46 C20,42 24,42" stroke="#2a6010" stroke-width="0.7" fill="none" opacity=".5"/>'+
-  '<path d="M38,40 C42,38 44,40" stroke="#2a6010" stroke-width="0.7" fill="none" opacity=".5"/>'+
-  '<path d="M20,56 C22,52 26,52" stroke="#2a6010" stroke-width="0.7" fill="none" opacity=".4"/>'+
-  '<path d="M36,54 C40,52 42,54" stroke="#2a6010" stroke-width="0.7" fill="none" opacity=".4"/>'+
+  '<path d="M18,46 Q20,42 24,42" stroke="#2a6010" stroke-width="0.7" fill="none" opacity=".5"/>'+
+  '<path d="M38,40 Q42,38 44,40" stroke="#2a6010" stroke-width="0.7" fill="none" opacity=".5"/>'+
+  '<path d="M20,56 Q22,52 26,52" stroke="#2a6010" stroke-width="0.7" fill="none" opacity=".4"/>'+
+  '<path d="M36,54 Q40,52 42,54" stroke="#2a6010" stroke-width="0.7" fill="none" opacity=".4"/>'+
   '<ellipse cx="24" cy="38" rx="4" ry="8" fill="rgba(200,255,150,0.2)" transform="rotate(-10,24,38)"/>'+
-  '<path d="M32,72 C31,78 32,82" stroke="#1a5008" stroke-width="1.2" fill="none" stroke-linecap="round"/>',
+  '<path d="M32,72 Q31,78 32,82" stroke="#1a5008" stroke-width="1.2" fill="none" stroke-linecap="round"/>',
 
 'Courgette':
   '<path d="M32,18 C26,14 20,12 14,10 C16,6 22,6 26,12 C20,4 24,2 30,10Z" fill="#2a6818"/>'+
@@ -4720,9 +4724,20 @@ const POT_SVG_PLANTS={
   '<ellipse cx="32" cy="70" rx="26" ry="20" fill="url(#goni)"/>'+
   '<ellipse cx="22" cy="62" rx="10" ry="6" fill="rgba(255,230,160,0.30)" transform="rotate(-20,22,62)"/>'+
   '<path d="M8,68 C8,54 18,48 32,48 C46,48 56,54 56,68 C56,80 46,88 32,88 C18,88 8,80 8,68Z" fill="none" stroke="#c8880c" stroke-width="1" opacity=".35"/>'+
-  '<path d="M26,86 C23,90 23,94" stroke="#7a4808" stroke-width="1" fill="none"/>'+
-  '<path d="M32,88 C32,92 32,96" stroke="#7a4808" stroke-width="1.4" fill="none" stroke-linecap="round"/>'+
-  '<path d="M38,86 C41,90 41,94" stroke="#7a4808" stroke-width="1" fill="none"/>',
+  '<path d="M26,86 Q23,90 23,94" stroke="#7a4808" stroke-width="1" fill="none"/>'+
+  '<path d="M32,88 Q32,92 32,96" stroke="#7a4808" stroke-width="1.4" fill="none" stroke-linecap="round"/>'+
+  '<path d="M38,86 Q41,90 41,94" stroke="#7a4808" stroke-width="1" fill="none"/>',
+
+'Oignon blanc':
+  '<path d="M26,40 C26,28 28,18 30,10" stroke="#4a8828" stroke-width="2" fill="none" stroke-linecap="round"/>'+
+  '<path d="M32,38 C32,24 32,14 32,4" stroke="#5a9c30" stroke-width="2.5" fill="none" stroke-linecap="round"/>'+
+  '<path d="M38,40 C38,28 36,18 34,10" stroke="#4a8828" stroke-width="2" fill="none" stroke-linecap="round"/>'+
+  '<ellipse cx="32" cy="70" rx="26" ry="20" fill="url(#gonib)"/>'+
+  '<ellipse cx="22" cy="62" rx="10" ry="6" fill="rgba(255,255,255,0.40)" transform="rotate(-20,22,62)"/>'+
+  '<path d="M8,68 C8,54 18,48 32,48 C46,48 56,54 56,68 C56,80 46,88 32,88 C18,88 8,80 8,68Z" fill="none" stroke="#a0a0a0" stroke-width="1" opacity=".35"/>'+
+  '<path d="M26,86 Q23,90 23,94" stroke="#707070" stroke-width="1" fill="none"/>'+
+  '<path d="M32,88 Q32,92 32,96" stroke="#707070" stroke-width="1.4" fill="none" stroke-linecap="round"/>'+
+  '<path d="M38,86 Q41,90 41,94" stroke="#707070" stroke-width="1" fill="none"/>',
 
 'Ail':
   '<path d="M26,46 C26,36 28,26 28,16" stroke="#5a8828" stroke-width="1.8" fill="none" stroke-linecap="round"/>'+
@@ -4776,9 +4791,9 @@ const POT_SVG_PLANTS={
   '<path d="M32,46 C24,40 20,30 20,20 C22,14 28,14 28,22 C28,12 34,12 32,26 C30,12 36,12 36,22 C36,14 42,14 44,20 C44,30 40,40 32,46Z" fill="#6a2878" opacity=".75"/>'+
   '<circle cx="32" cy="64" r="19" fill="url(#gbet)"/>'+
   '<ellipse cx="24" cy="56" rx="8" ry="5" fill="rgba(220,160,255,0.28)" transform="rotate(-25,24,56)"/>'+
-  '<path d="M26,80 C24,86 25,91" stroke="#4a0858" stroke-width="1.2" fill="none"/>'+
-  '<path d="M32,83 C32,88 32,93" stroke="#4a0858" stroke-width="1.6" fill="none" stroke-linecap="round"/>'+
-  '<path d="M38,80 C40,86 39,91" stroke="#4a0858" stroke-width="1.2" fill="none"/>',
+  '<path d="M26,80 Q24,86 25,91" stroke="#4a0858" stroke-width="1.2" fill="none"/>'+
+  '<path d="M32,83 Q32,88 32,93" stroke="#4a0858" stroke-width="1.6" fill="none" stroke-linecap="round"/>'+
+  '<path d="M38,80 Q40,86 39,91" stroke="#4a0858" stroke-width="1.2" fill="none"/>',
 
 'Pomme de terre':
   '<path d="M20,26 C18,30 16,36 16,42 C16,50 18,56 22,60 C26,64 28,66 32,66 C36,66 38,64 42,60 C46,56 48,50 48,42 C48,36 46,30 44,26 C40,22 36,20 32,20 C28,20 24,22 20,26Z" fill="url(#gpom)"/>'+
@@ -4840,7 +4855,7 @@ function potGetPlantSvg(nom){
     'Roquette':'Laitue','Cresson':'Laitue','Pak-choï':'Chou',
     'Scarole':'Laitue','Chicorée':'Laitue','Endive':'Laitue',
     'Topinambour':'Pomme de terre','Rutabaga':'Betterave',
-    'Maïs':'Maïs doux','Oignon blanc':'Oignon','Rhubarbe':'Betterave',
+    'Maïs':'Maïs doux','Oignon blanc':'Oignon blanc','Rhubarbe':'Betterave',
     'Épinard malabar':'Épinard','Laitue pommée':'Laitue pommée',
   };
   const key=POT_SVG_PLANTS[nom]?nom:(aliases[nom]||'default');
@@ -4854,6 +4869,7 @@ function potGetPlantSvg(nom){
     '<radialGradient id="gcuc" cx="35%" cy="30%" r="65%"><stop offset="0%" stop-color="#88d050"/><stop offset="55%" stop-color="#4a8818"/><stop offset="100%" stop-color="#204808"/></radialGradient>'+
     '<radialGradient id="gcou" cx="35%" cy="30%" r="65%"><stop offset="0%" stop-color="#80c840"/><stop offset="55%" stop-color="#3e8010"/><stop offset="100%" stop-color="#1a4808"/></radialGradient>'+
     '<radialGradient id="goni" cx="38%" cy="30%" r="60%"><stop offset="0%" stop-color="#ffd070"/><stop offset="55%" stop-color="#c88020"/><stop offset="100%" stop-color="#6a3808"/></radialGradient>'+
+    '<radialGradient id="gonib" cx="38%" cy="30%" r="60%"><stop offset="0%" stop-color="#ffffff"/><stop offset="45%" stop-color="#e8e0d0"/><stop offset="100%" stop-color="#b0a898"/></radialGradient>'+
     '<radialGradient id="gbet" cx="36%" cy="28%" r="62%"><stop offset="0%" stop-color="#c070c8"/><stop offset="52%" stop-color="#6820a0"/><stop offset="100%" stop-color="#2a0858"/></radialGradient>'+
     '<radialGradient id="gpom" cx="36%" cy="32%" r="62%"><stop offset="0%" stop-color="#e0c060"/><stop offset="52%" stop-color="#b07020"/><stop offset="100%" stop-color="#6a3808"/></radialGradient>'+
     '<radialGradient id="gpois" cx="35%" cy="30%" r="65%"><stop offset="0%" stop-color="#90c840"/><stop offset="55%" stop-color="#508010"/><stop offset="100%" stop-color="#224808"/></radialGradient>'+
@@ -4896,8 +4912,9 @@ function potRenderJardin(){
         for(let p=0;p<nbP;p++) plantsRow+=potGetPlantSvg(nom);
         plantsRow+='</div>';
         parts.push(
-          '<div style="flex:1;display:flex;flex-direction:column;align-items:center;background:'+bg+';border:1.5px solid '+bc+';border-radius:7px;padding:4px 2px 4px;cursor:pointer;position:relative;overflow:hidden;min-width:0;" onclick="potCellTap('+r+','+c+')">'
+          '<div style="flex:1;display:flex;flex-direction:column;align-items:center;background:'+bg+';border:1.5px solid '+bc+';border-radius:7px;padding:4px 2px 4px;cursor:pointer;position:relative;min-width:0;" onclick="potCellTap('+r+','+c+')">'
           +'<button onclick="event.stopPropagation();potRemove('+r+','+c+')" style="position:absolute;top:2px;right:3px;background:none;border:none;color:rgba(200,80,80,0.25);font-size:9px;cursor:pointer;z-index:2;line-height:1;" onmouseover="this.style.color=\'#e07070\'" onmouseout="this.style.color=\'rgba(200,80,80,0.25)\'">✕</button>'
+          +'<button onclick="event.stopPropagation();potRemplacer('+r+','+c+')" style="position:absolute;bottom:2px;left:2px;background:rgba(200,168,40,0.12);border:1px solid rgba(200,168,40,0.35);border-radius:4px;color:#e0c870;font-size:8px;cursor:pointer;z-index:10;line-height:1;padding:1px 4px;font-family:Cinzel,serif;letter-spacing:.04em;" onmouseover="this.style.background=\'rgba(200,168,40,0.3)\'" onmouseout="this.style.background=\'rgba(200,168,40,0.12)\'">↺</button>'
           +plantsRow
           +'<div style="font-family:\'Cormorant Garamond\',serif;font-size:10px;font-weight:600;color:#c8dc88;text-align:center;margin-top:2px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;padding:0 4px;">'+nom.substring(0,14)+' '+rotIcon+'</div>'
           +agroHtml+'</div>'
@@ -5001,10 +5018,77 @@ function potBuildPalette(){
   const list=(typeof plantes!=='undefined')?plantes.map(p=>p.nom).filter((v,i,a)=>a.indexOf(v)===i):Object.keys(POT_FAMILLES);
   const filtered=list.filter(n=>POT_FAMILLES[n]&&(!potCatFlt||POT_FAMILLES[n]===potCatFlt)).sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));
   const pal=document.getElementById('pot-palette');if(!pal) return;
-  pal.innerHTML=filtered.map(nom=>{
+
+  // Mois actuel pour filtrage saisonnier
+  const moisNow = new Date().getMonth()+1;
+  const MOIS_GEL_PAL = 10;
+
+  // Calculer la faisabilité de chaque plante
+  function palFaisabilite(nom){
+    if(typeof plantes==='undefined') return {ok:true};
+    const p=plantes.find(x=>x.nom===nom);
+    if(!p) return {ok:true};
+    const semis=p.semis||p.plantation;
+    if(!semis) return {ok:true};
+    const [a,b]=semis;
+    const enSaison=a<=b?(moisNow>=a&&moisNow<=b):(moisNow>=a||moisNow<=b);
+    if(!enSaison) return {ok:false, raison:'hors_saison'};
+    const duree=p.duree_culture||12;
+    if(duree===0) return {ok:true, raison:'taille'};
+    const moisRecolte=moisNow+Math.round(duree/4.3);
+    if(moisRecolte>12) return {ok:false, raison:'trop_tard', moisRecolte};
+    if(moisRecolte>=MOIS_GEL_PAL) return {ok:'limite', raison:'limite_gel', moisRecolte};
+    return {ok:true, moisRecolte};
+  }
+
+  // Séparer en 3 groupes : OK, limite, hors saison
+  const grOk=[], grLimite=[], grHors=[];
+  filtered.forEach(nom=>{
+    const f=palFaisabilite(nom);
+    if(f.ok===true) grOk.push({nom,f});
+    else if(f.ok==='limite') grLimite.push({nom,f});
+    else grHors.push({nom,f});
+  });
+
+  const MOIS_NOM_PAL=['','Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+
+  function makeCard(nom, f, dim){
     const ic=typeof PI!=='undefined'&&PI[nom]?'<span style="display:inline-flex;align-items:center">'+PI[nom]+'</span>':'';
-    return '<div class="pot-veg'+(potSelVeg===nom?' selected':'')+'" onclick="potPickVeg(\''+nom.replace(/'/g,"\\'")+'\')">'+ic+'<span>'+nom+'</span></div>';
-  }).join('');
+    const style=dim?'opacity:.35;filter:grayscale(.6);':'';
+    const title=f.ok===false&&f.raison==='hors_saison'?'Hors saison de semis':
+                f.ok===false&&f.raison==='trop_tard'?'Récolte trop tardive avant gel':
+                f.ok==='limite'?'⚠ Récolte ~'+MOIS_NOM_PAL[Math.min(12,f.moisRecolte||12)]+' (limite gel)':'';
+    const badge=f.ok==='limite'?'<span style="font-size:.45rem;background:rgba(220,130,30,.2);color:#f0c060;border-radius:3px;padding:0 3px;">⚠</span>':
+                f.ok===false?'<span style="font-size:.45rem;background:rgba(200,60,60,.15);color:#f08060;border-radius:3px;padding:0 3px;">❌</span>':'';
+    return '<div class="pot-veg'+(potSelVeg===nom?' selected':'')+'" style="'+style+'" title="'+title+'" onclick="potPickVegSmart(\''+nom.replace(/'/g,"\\'")+'\','+JSON.stringify(f.ok)+')">'+ic+'<span>'+nom+'</span>'+badge+'</div>';
+  }
+
+  let html='';
+  // Groupe 1 : en saison — plein tarif
+  if(grOk.length){
+    html+='<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:.1em;color:#6dea90;text-transform:uppercase;margin:4px 0 3px;width:100%;">✓ En saison ('+grOk.length+')</div>';
+    html+=grOk.map(({nom,f})=>makeCard(nom,f,false)).join('');
+  }
+  // Groupe 2 : limite gel — avec avertissement
+  if(grLimite.length){
+    html+='<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:.1em;color:#f0c060;text-transform:uppercase;margin:6px 0 3px;width:100%;">⚠ Récolte limite ('+grLimite.length+')</div>';
+    html+=grLimite.map(({nom,f})=>makeCard(nom,f,false)).join('');
+  }
+  // Groupe 3 : hors saison — grisé
+  if(grHors.length){
+    html+='<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:.1em;color:rgba(200,100,80,.6);text-transform:uppercase;margin:6px 0 3px;width:100%;">❌ Hors saison ('+grHors.length+')</div>';
+    html+=grHors.map(({nom,f})=>makeCard(nom,f,true)).join('');
+  }
+
+  pal.innerHTML=html;
+}
+
+// Nouvelle fonction potPickVeg avec avertissement si hors saison
+function potPickVegSmart(nom, ok){
+  if(ok===false){
+    potSetInfo('⚠️ <b>'+nom+'</b> est hors saison ce mois-ci. Vous pouvez quand même le planter, mais la récolte ne sera pas garantie avant les gelées.');
+  }
+  potPickVeg(nom);
 }
 function potSetCat(cat){potCatFlt=cat;potBuildPalette();}
 function potPickVeg(nom){
@@ -5214,6 +5298,63 @@ function fermerJardin(){document.getElementById('page-jardin').style.display='no
       setup();
     })();
 
+
+
+
+// ══ CONFIRMATION & RESET — intégré ══
+
+// ══ CONFIRMATION JARDIN — bannière fixe en haut ══
+var _potConfirmCallback = null;
+
+function potShowConfirm(msg, callback){
+  document.getElementById('potConfirmMsg').innerHTML = msg;
+  document.getElementById('potConfirmOkBtn').onclick = function(){
+    potConfirmCancel();
+    if(_potConfirmCallback) _potConfirmCallback();
+  };
+  _potConfirmCallback = callback;
+  document.getElementById('potConfirmBanner').style.display = 'block';
+  // Scroll vers le haut pour voir la bannière
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function potConfirmCancel(){
+  document.getElementById('potConfirmBanner').style.display = 'none';
+  _potConfirmCallback = null;
+}
+
+// Redéfinir potReset pour utiliser la bannière
+potReset = function(){
+  if(confirm("🗑 Effacer l\'année "+potYear+" ?\nCette action est irréversible.")){
+    Object.keys(potData).forEach(function(r){
+      if(potData[r]) Object.keys(potData[r]).forEach(function(c){
+        if(potData[r][c]) delete potData[r][c][String(potYear)];
+      });
+    });
+    potSave(); potRenderJardin();
+    potSetInfo('✅ Année '+potYear+' effacée.');
+  }
+};
+
+// Redéfinir potFullReset pour utiliser la bannière
+potFullReset = function(){
+  if(confirm("Reset total\nEffacer le jardin, l'historique et le pense-bete ?\nCette action est irreversible.")){
+    potData = {};
+    potRows = 3; potCols = 4;
+    try{ localStorage.removeItem('dmt_potv3'); }catch(e){}
+    try{ localStorage.removeItem('dmt_pb'); }catch(e){}
+    potSave(); potRenderJardin();
+    var rowsEl=document.getElementById('pot-rows');
+    var colsEl=document.getElementById('pot-cols');
+    if(rowsEl) rowsEl.value = potRows;
+    if(colsEl) colsEl.value = potCols;
+    var s=document.getElementById('pot-gen-summary');
+    if(s){s.style.display='none';s.innerHTML='';}
+    var pb=document.getElementById('pot-import-result');
+    if(pb){pb.className='pot-import-result';pb.innerHTML='';}
+    potSetInfo('Reset total effectue.');
+  }
+}
 
 </script>
 
@@ -5464,6 +5605,21 @@ function fermerJardin(){document.getElementById('page-jardin').style.display='no
             <div id="jardin-rangees"></div>
         </div>
 
+        <!-- Bouton Reset total — tout en bas pour éviter les erreurs -->
+        <div style="text-align:center;margin-top:20px;padding-top:16px;
+                    border-top:1px solid rgba(220,60,60,0.15);">
+            <button onclick="potFullReset()"
+                    style="font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:.1em;
+                           text-transform:uppercase;padding:8px 20px;border-radius:8px;
+                           cursor:pointer;border:1px solid rgba(220,60,60,0.35);
+                           background:rgba(220,60,60,0.08);color:rgba(220,100,100,0.7);
+                           transition:all .2s;"
+                    onmouseover="this.style.background='rgba(220,60,60,0.2)';this.style.color='#ffaaaa';"
+                    onmouseout="this.style.background='rgba(220,60,60,0.08)';this.style.color='rgba(220,100,100,0.7)';">
+                ♻️ Reset total — effacer tout l'historique
+            </button>
+        </div>
+
     </div>
 </div>
 
@@ -5477,6 +5633,253 @@ function fermerJardin(){document.getElementById('page-jardin').style.display='no
             <button class="aw-btn-cancel" onclick="closeAgendaWarning()">✕ Annuler</button>
             <button class="aw-btn-ok" onclick="confirmAgenda()">✅ Oui, ajouter</button>
         </div>
+    </div>
+</div>
+
+
+<!-- ══ MODALE REMPLACEMENT JARDIN ══ -->
+<div id="potRemplModal" onclick="if(event.target===this)potRemplClose()"
+     style="display:none;position:fixed;inset:0;z-index:500;background:rgba(2,10,4,0.93);
+            backdrop-filter:blur(6px);align-items:flex-start;justify-content:center;
+            padding:16px;overflow-y:auto;box-sizing:border-box;">
+    <div style="background:#0d1f0a;border:1px solid rgba(140,192,80,0.35);border-radius:16px;
+              padding:18px;width:100%;max-width:420px;margin-top:10px;">
+        <div id="potRemplTitle" style="font-family:'Cinzel',serif;font-size:.82rem;color:#c8e070;
+         letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">↺ Remplacer</div>
+        <div id="potRemplSub" style="font-size:.88rem;color:#b0cc90;font-style:italic;
+         margin-bottom:14px;line-height:1.5;"></div>
+
+        <div style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.1em;
+         color:#b0cc90;text-transform:uppercase;margin-bottom:7px;" id="potRemplSugTitle">
+            ⭐ Meilleures successions
+        </div>
+        <div id="potRemplSuggestions" style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;"></div>
+
+
+
+        <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(140,192,80,0.2),transparent);margin:10px 0;"></div>
+        <div id="potRemplPreview" style="display:none;font-size:.8rem;color:#b0cc90;font-style:italic;
+         padding:7px 10px;background:rgba(140,192,80,0.06);border-radius:7px;
+         margin-bottom:10px;line-height:1.5;border-left:3px solid rgba(140,192,80,0.3);"></div>
+
+        <div style="display:flex;gap:8px;">
+            <button onclick="potRemplClose()"
+                    style="flex:1;padding:9px;border-radius:8px;cursor:pointer;
+                     border:1px solid rgba(180,60,60,0.4);background:rgba(180,60,60,0.1);
+                     color:#f08080;font-family:'Cinzel',serif;font-size:.7rem;
+                     text-transform:uppercase;letter-spacing:.08em;">✕ Annuler</button>
+            <button onclick="potRemplConfirm()"
+                    style="flex:2;padding:9px;border-radius:8px;cursor:pointer;border:none;
+                     background:linear-gradient(180deg,#6aaa40,#3a6e1a);color:#e8f8d0;
+                     font-family:'Cinzel',serif;font-size:.7rem;text-transform:uppercase;
+                     letter-spacing:.08em;box-shadow:0 3px 0 #1e4a08;">↺ Remplacer</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ══ REMPLACEMENT INTELLIGENT ══
+    (function(){
+      const MOIS_LONG=['','Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+      const MOIS_NOM=['','Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+      // MOIS_GEL calculé dynamiquement à chaque appel (climateZone peut changer après GPS)
+      const MOIS_GEL_ZONE = { montagne:9, froide:10, temperee:11, douce:12 };
+      function getMoisGel(){ return MOIS_GEL_ZONE[climateZone] || 10; }
+
+      let _remplR=-1, _remplC=-1, _remplSel=null;
+
+      // Calculer la faisabilité : peut-on récolter avant les gelées ?
+      function calcFaisabilite(plante, moisSemis){
+        const semis = plante.semis || plante.plantation;
+        if(!semis) return {ok:false, raison:'inconnu', moisRecolte:null};
+        const [a,b] = semis;
+        const enSaison = a<=b ? (moisSemis>=a && moisSemis<=b) : (moisSemis>=a || moisSemis<=b);
+        if(!enSaison) return {ok:false, raison:'hors_saison', moisRecolte:null};
+        const duree = plante.duree_culture || 12;
+        if(duree === 0) return {ok:true, raison:'taille', moisRecolte:null}; // taille = pas de récolte
+        const moisRecolte = moisSemis + Math.round(duree / 4.3);
+        const MOIS_GEL=getMoisGel();
+        if(moisRecolte > 12) return {ok:false, raison:'trop_tard', moisRecolte:Math.min(moisRecolte,14)};
+        if(moisRecolte >= MOIS_GEL) return {ok:'limite', raison:'limite_gel', moisRecolte};
+        return {ok:true, raison:'ok', moisRecolte};
+      }
+
+      function faisaBadge(f){
+        if(!f.ok && f.raison==='hors_saison')
+          return '<span style="font-size:.5rem;font-family:Cinzel,serif;padding:1px 5px;border-radius:4px;background:rgba(220,60,40,.15);color:#f08060;border:1px solid rgba(220,60,40,.35);">❌ Hors saison</span>';
+        if(!f.ok && f.raison==='trop_tard')
+          return '<span style="font-size:.5rem;font-family:Cinzel,serif;padding:1px 5px;border-radius:4px;background:rgba(220,60,40,.15);color:#f08060;border:1px solid rgba(220,60,40,.35);">⏱ Récolte trop tardive</span>';
+        if(f.ok==='limite')
+          return '<span style="font-size:.5rem;font-family:Cinzel,serif;padding:1px 5px;border-radius:4px;background:rgba(220,130,30,.15);color:#f0c060;border:1px solid rgba(220,130,30,.4);">⚠ Récolte ~'+MOIS_NOM[f.moisRecolte]+' (limite gel)</span>';
+        if(f.ok && f.moisRecolte)
+          return '<span style="font-size:.5rem;font-family:Cinzel,serif;padding:1px 5px;border-radius:4px;background:rgba(74,158,106,.2);color:#6dea90;border:1px solid #4a9e6a;">✓ Récolte ~'+MOIS_NOM[f.moisRecolte]+'</span>';
+        return '';
+      }
+
+      function rotBadge(score){
+        if(score===3) return '<span style="font-size:.5rem;font-family:Cinzel,serif;padding:1px 5px;border-radius:4px;background:rgba(74,158,106,.2);color:#6dea90;border:1px solid #4a9e6a;">🌟 Rotation excellente</span>';
+        if(score===2) return '<span style="font-size:.5rem;font-family:Cinzel,serif;padding:1px 5px;border-radius:4px;background:rgba(140,192,80,.12);color:#c8e070;border:1px solid rgba(140,192,80,.3);">✓ Bonne rotation</span>';
+        if(score===0) return '<span style="font-size:.5rem;font-family:Cinzel,serif;padding:1px 5px;border-radius:4px;background:rgba(220,60,40,.15);color:#f08060;border:1px solid rgba(220,60,40,.35);">✕ Même famille</span>';
+        return '<span style="font-size:.5rem;font-family:Cinzel,serif;padding:1px 5px;border-radius:4px;background:rgba(220,130,30,.1);color:#f0c060;border:1px solid rgba(220,130,30,.3);">↔ Neutre</span>';
+      }
+
+      window.potRemplacer = function(r, c){
+        _remplR=r; _remplC=c; _remplSel=null;
+        const yStr=String(potYear);
+        const nomActuel = potData[r]&&potData[r][c]&&potData[r][c][yStr];
+        if(!nomActuel){ potSetInfo('Case vide — utilisez la palette pour planter.'); return; }
+        const famActuelle = POT_FAMILLES[nomActuel]||null;
+
+        // Mois actuel
+        const moisNow = new Date().getMonth()+1;
+
+        document.getElementById('potRemplTitle').textContent = '↺ Remplacer — '+ nomActuel;
+        document.getElementById('potRemplSub').innerHTML =
+          'Vous arrachez : <b>'+nomActuel+'</b><br>'+
+          'Mois actuel : <b>'+MOIS_LONG[moisNow]+'</b> · '+
+          (famActuelle ? 'Famille : '+famActuelle : '')+
+          '<br><i style="font-size:.8rem;">⚠ Zone '+climateZone+' : gel possible dès '+['','Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'][getMoisGel()]+'</i>';
+
+        // Trier les plantes par score total
+        const scored = plantes.map(function(p){
+          const fam = POT_FAMILLES[p.nom]||null;
+          const rot = agroScore(famActuelle, fam);
+          const fais = calcFaisabilite(p, moisNow);
+          let total = 0;
+          if(fais.ok===true)       total = rot*3 + 2;
+          else if(fais.ok==='limite') total = rot*1;
+          else                     total = -1;
+          return Object.assign({}, p, {rot:rot, fais:fais, total:total, fam:fam});
+        }).sort(function(a,b){ return b.total-a.total || b.rot-a.rot; });
+
+        // Top 6 suggestions
+        const top = scored.filter(function(p){ return p.total>=0; }).slice(0,6);
+        const topNoms = new Set(top.map(function(p){ return p.nom; }));
+        // Les plantes non viables ne sont pas proposées du tout
+
+        document.getElementById('potRemplSugTitle').textContent =
+          top.length ? '⭐ Meilleures successions après '+nomActuel+' en '+MOIS_LONG[moisNow] : '⭐ Aucune plante idéale ce mois-ci';
+
+        document.getElementById('potRemplSuggestions').innerHTML = top.map(function(p){
+          return '<div style="display:flex;align-items:center;gap:10px;background:rgba(10,25,10,0.8);'+
+            'border:1px solid rgba(90,140,70,0.25);border-radius:10px;padding:8px 11px;cursor:pointer;'+
+            'transition:border-color .15s;" '+
+            'onclick="potRemplSelect(this)" data-nom="'+p.nom+'">'+
+            '<div style="font-size:1.2rem;">'+potGetPlantEmoji(p.nom)+'</div>'+
+            '<div style="flex:1;">'+
+              '<div style="font-size:.9rem;color:#f5f8ee;">'+p.nom+'</div>'+
+              '<div style="font-size:.72rem;color:#b0cc90;margin-top:1px;">'+
+                (p.duree_culture?'~'+p.duree_culture+' sem. · ':'')+
+                (p.fam||'')+'</div>'+
+              '<div style="display:flex;gap:4px;margin-top:3px;flex-wrap:wrap;">'+
+                rotBadge(p.rot)+faisaBadge(p.fais)+
+              '</div>'+
+            '</div>'+
+          '</div>';
+        }).join('') || '<div style="color:#b0cc90;font-style:italic;font-size:.85rem;padding:4px 0;">Aucune suggestion pour ce mois.</div>';
+
+        // Autres plantes
+
+
+
+        document.getElementById('potRemplPreview').style.display='none';
+        document.getElementById('potRemplModal').style.display='flex';
+      };
+
+      window.potRemplSelect = function(elOrNom, el){
+        var nom = typeof elOrNom==='string' ? elOrNom : (elOrNom.closest ? elOrNom.closest('[data-nom]') : elOrNom).getAttribute('data-nom');
+        var el2 = typeof elOrNom==='string' ? el : (elOrNom.closest ? elOrNom.closest('[data-nom]') : elOrNom);
+        _remplSel = nom;
+        // Désélectionner tout
+        document.querySelectorAll('#potRemplSuggestions > div, #potRemplAutres > button').forEach(function(e){
+          e.style.borderColor='rgba(90,140,70,0.25)';
+          e.style.background='';
+        });
+        // Sélectionner
+        var card = el2;
+        card.style.borderColor='#4a9e6a';
+        card.style.background='rgba(74,158,106,0.15)';
+
+        // Preview récolte
+        const p = plantes.find(function(x){ return x.nom===nom; });
+        if(!p) return;
+        const moisNow = new Date().getMonth()+1;
+        const fais = calcFaisabilite(p, moisNow);
+        const prev = document.getElementById('potRemplPreview');
+        prev.style.display='block';
+        if(!fais.ok && fais.raison==='hors_saison'){
+          prev.innerHTML='❌ <b>'+nom+'</b> — hors saison de semis en '+MOIS_LONG[moisNow];
+          prev.style.borderLeftColor='#f08060';
+        } else if(!fais.ok){
+          const mR = fais.moisRecolte ? MOIS_NOM[Math.min(12,fais.moisRecolte)] : '?';
+          prev.innerHTML='⏱ <b>'+nom+'</b> — durée ~'+(p.duree_culture||12)+' sem. → récolte ~'+mR+' : trop tard avant les gelées';
+          prev.style.borderLeftColor='#f08060';
+        } else if(fais.ok==='limite'){
+          prev.innerHTML='⚠️ <b>'+nom+'</b> — durée ~'+(p.duree_culture||12)+' sem. → récolte ~'+MOIS_NOM[fais.moisRecolte]+' : <b>juste avant les premiers gels</b>';
+          prev.style.borderLeftColor='#f0c060';
+        } else {
+          const mR = fais.moisRecolte ? MOIS_NOM[fais.moisRecolte] : '';
+          prev.innerHTML='✅ <b>'+nom+'</b> — durée ~'+(p.duree_culture||12)+' sem. → récolte estimée <b>~'+mR+'</b> : viable avant les gelées';
+          prev.style.borderLeftColor='#4a9e6a';
+        }
+      };
+
+      window.potRemplClose = function(){
+        document.getElementById('potRemplModal').style.display='none';
+      };
+
+      window.potRemplConfirm = function(){
+        if(!_remplSel){ potSetInfo('⚠ Choisissez une plante de remplacement.'); return; }
+        if(!potData[_remplR]) potData[_remplR]={};
+        if(!potData[_remplR][_remplC]) potData[_remplR][_remplC]={};
+        const ancienNom = potData[_remplR][_remplC][String(potYear)]||'';
+        potData[_remplR][_remplC][String(potYear)] = _remplSel;
+        potSave(); potRenderJardin();
+        potSetInfo('✅ '+ancienNom+' remplacé par '+_remplSel+' — rotation et récolte vérifiées.');
+        potRemplClose();
+      };
+
+      // Helper emoji plante (version simplifiée)
+      window.potGetPlantEmoji = function(nom){
+        const map={
+          'Tomate':'🍅','Tomate cerise':'🍅','Poivron':'🫑','Aubergine':'🍆','Piment':'🌶',
+          'Pomme de terre':'🥔','Courgette':'🥒','Concombre':'🥒','Cornichon':'🥒',
+          'Melon':'🍈','Potiron':'🎃','Courge butternut':'🎃',
+          'Carotte':'🥕','Radis':'🌸','Radis noir':'🖤','Navet':'⚪','Betterave':'❤',
+          'Panais':'🌿','Céleri-rave':'🌿','Fenouil':'🌿','Salsifis':'🌿',
+          'Haricot':'🫛','Pois':'🟢','Petit pois':'🟢','Fève':'🫘',
+          'Oignon':'🧅','Ail':'🧄','Poireau':'🌿','Échalote':'🧅',
+          'Chou':'🥬','Chou-fleur':'🥦','Brocoli':'🥦','Chou rouge':'🥬','Laitue':'🥗',
+          'Épinard':'🌿','Mâche':'🌿','Roquette':'🌿','Basilic':'🌿','Persil':'🌿',
+          'Fraise':'🍓','Framboise':'🫐','Maïs doux':'🌽',
+          'Tournesol':'🌻','Capucine':'🌸','Souci':'🌼','Cosmos':'🌸',
+        };
+        return map[nom]||'🌱';
+      };
+    })();
+</script>
+
+<!-- ══ BANNIÈRE CONFIRMATION JARDIN ══ -->
+<div id="potConfirmBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:600;
+     background:rgba(30,8,8,0.97);border-bottom:2px solid rgba(220,60,60,0.6);
+     padding:14px 18px;text-align:center;backdrop-filter:blur(8px);">
+    <div id="potConfirmMsg" style="font-family:'Cinzel',serif;font-size:.82rem;color:#f08080;
+       letter-spacing:.06em;margin-bottom:10px;"></div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+        <button onclick="potConfirmCancel()"
+                style="padding:8px 20px;border-radius:8px;cursor:pointer;
+                   border:1px solid rgba(140,192,80,0.3);background:rgba(140,192,80,0.1);
+                   color:#c8e070;font-family:'Cinzel',serif;font-size:.72rem;
+                   text-transform:uppercase;letter-spacing:.08em;">
+            Annuler
+        </button>
+        <button id="potConfirmOkBtn"
+                style="padding:8px 20px;border-radius:8px;cursor:pointer;border:none;
+                   background:linear-gradient(180deg,#c04040,#802020);color:#ffe0e0;
+                   font-family:'Cinzel',serif;font-size:.72rem;text-transform:uppercase;
+                   letter-spacing:.08em;box-shadow:0 3px 0 #501010;">
+            Confirmer
+        </button>
     </div>
 </div>
 
