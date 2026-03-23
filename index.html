@@ -465,6 +465,7 @@
         .csel-placeholder{color:var(--muted);font-style:italic;}
         .csel-dropdown{display:none;position:fixed;z-index:99999;top:0!important;left:0!important;right:0!important;bottom:0!important;width:100vw!important;height:100vh!important;max-height:100vh!important;background:rgba(8,16,10,0.99);border:none;border-radius:0;overflow-y:auto;box-shadow:none;scrollbar-width:thin;scrollbar-color:var(--gold) transparent;padding-top:env(safe-area-inset-top,0px);}
         .csel-dropdown.open{display:block;}
+        .csel-dropdown.open{display:block;}
         .csel-option{display:flex;align-items:center;gap:10px;padding:9px 14px;font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--silver);cursor:pointer;border-bottom:1px solid rgba(90,140,70,0.08);}
         .csel-option:last-child{border-bottom:none;}
         .csel-option:hover{background:rgba(140,192,80,0.14);color:var(--text);}
@@ -531,7 +532,7 @@
         .agro-badge.neutre{background:rgba(100,120,100,0.15);border:1px solid rgba(100,120,100,0.3);color:#8aaa78;}
         .agro-badge.deconseille{background:rgba(220,80,40,0.15);border:1px solid rgba(220,80,40,0.4);color:#f08060;}
     </style>
-
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&amp;family=Cormorant+Garamond:wght@300;400;500&amp;family=Cinzel:wght@400;600&amp;display=swap" as="style" crossorigin>
 
 
 
@@ -1768,9 +1769,9 @@ async function checkPassword(){
             ${hidden.length > 0 ? `
               <span id="${uid}_more" style="cursor:pointer;background:rgba(140,192,80,0.12);border:1px solid rgba(140,192,80,0.3);border-radius:20px;padding:3px 10px;font-size:.88rem;color:var(--gold)" onclick="
                 document.getElementById('${uid}_more').style.display='none';
-                document.getElementById('${uid}_hidden').style.display='flex';
+                document.getElementById('${uid}_hidden').style.display='contents';
               ">+${hidden.length} autres ▾</span>
-              <span id="${uid}_hidden" style="display:none;flex-wrap:wrap;gap:6px;">
+              <span id="${uid}_hidden" style="display:none;contents:flex;flex-wrap:wrap;gap:6px;">
                 ${hidden.map(p=>`<span style="${tagStyle}">${p.nom}</span>`).join('')}
               </span>` : ''}
           </div>`;
@@ -4364,11 +4365,11 @@ function potGenererPlanAgro(){
   const summary=document.getElementById('pot-gen-summary');
   if(!summary) return;
 
-  // 1. Collecter les plantes de l'année précédente
+  // 1. Collecter les plantes de l'année précédente (support duo : chaque plante = une entrée)
   const prevCells=[]; // {r,c,nom,fam}
   for(let r=0;r<potRows;r++) for(let c=0;c<potCols;c++){
-    const nom=potData[r]&&potData[r][c]&&potData[r][c][prevYear];
-    if(nom) prevCells.push({r,c,nom,fam:POT_FAMILLES[nom]||null});
+    const noms=potGetNoms(r,c,prevYear);
+    noms.forEach(nom=>prevCells.push({r,c,nom,fam:POT_FAMILLES[nom]||null}));
   }
   if(prevCells.length===0){
     summary.innerHTML='⚠️ Aucune plante en '+prevYear+' — remplissez d\'abord le potager pour '+prevYear+'.';
@@ -4517,7 +4518,7 @@ function potYearGo(delta){
 function potCheckGenBtn(){
   const prevYear=String(potYear-1);
   let hasPrev=false;
-  for(let r=0;r<potRows&&!hasPrev;r++) for(let c=0;c<potCols&&!hasPrev;c++) if(potData[r]&&potData[r][c]&&potData[r][c][prevYear]) hasPrev=true;
+  for(let r=0;r<potRows&&!hasPrev;r++) for(let c=0;c<potCols&&!hasPrev;c++) if(potGetNoms(r,c,prevYear).length>0) hasPrev=true;
   const btn=document.getElementById('pot-gen-btn'), hint=document.getElementById('pot-year-hint');
   if(hasPrev){if(btn){btn.textContent='🔄 Générer plan '+potYear+' (rotation optimale)';btn.style.display='inline-block';}if(hint) hint.style.display='none';}
   else{if(btn) btn.style.display='none';if(hint) hint.style.display='inline';}
@@ -4536,7 +4537,7 @@ function potImportPenseBete(){
     const plantInBase=(typeof plantes!=='undefined')&&plantes.find(p=>p.nom===nom);
     if(!plantInBase){nbNotFound++;tags.push({nom,status:'notfound',year:entryYear});return;}
     let alreadyPlaced=false;
-    for(let r=0;r<potRows&&!alreadyPlaced;r++) for(let c=0;c<potCols&&!alreadyPlaced;c++) if(potData[r]&&potData[r][c]&&potData[r][c][yearStr]===nom) alreadyPlaced=true;
+    for(let r=0;r<potRows&&!alreadyPlaced;r++) for(let c=0;c<potCols&&!alreadyPlaced;c++) if(potGetNoms(r,c,yearStr).includes(nom)) alreadyPlaced=true;
     if(alreadyPlaced){nbSkipped++;tags.push({nom,status:'skipped',year:entryYear,reason:'déjà présent'});return;}
     const bestCell=potFindBestCell(nom,yearStr);
     if(!bestCell){nbSkipped++;tags.push({nom,status:'skipped',year:entryYear,reason:'potager plein'});return;}
@@ -4560,7 +4561,7 @@ function potFindBestCell(nom,yearStr){
   const c1=comp[nom]||{allies:[],enemies:[]};
   let bestCell=null,bestScore=-999;
   for(let r=0;r<potRows;r++) for(let c=0;c<potCols;c++){
-    if(potData[r]&&potData[r][c]&&potData[r][c][yearStr]) continue;
+    if(potGetNoms(r,c,yearStr).length>=2) continue; // case pleine (2 plantes)
     let score=0;
     const rot=potRotStatus(r,c,nom,parseInt(yearStr));
     if(rot==='ok') score+=3;else if(rot==='warn') score+=1;else if(rot==='bad') score-=4;
@@ -4840,6 +4841,49 @@ const POT_SVG_PLANTS={
   '<ellipse cx="27" cy="44" rx="5" ry="3" fill="rgba(200,255,160,0.3)" transform="rotate(-20,27,44)"/>'
 };
 
+// ── SVG petite taille pour le rang mélangé en quinconce ──
+function potGetPlantSvgSmall(nom){
+  const aliases={
+    'Laitue batavia':'Laitue','Laitue romaine':'Laitue','Laitue d\'hiver':'Laitue','Laitue pommée':'Laitue pommée',
+    'Chou rouge':'Chou rouge','Chou-fleur':'Chou-fleur','Chou de Bruxelles':'Brocoli',
+    'Carotte d\'hiver':'Carotte','Radis noir':'Radis',
+    'Petit pois':'Pois','Piment':'Poivron',
+    'Courge butternut':'Courgette','Potiron':'Courgette','Melon':'Concombre',
+    'Céleri branche':'Poireau','Céleri-rave':'Poireau','Panais':'Carotte',
+    'Navet':'Radis','Salsifis':'Carotte','Fenouil':'Poireau',
+    'Échalote':'Oignon','Ciboulette':'Poireau',
+    'Blette':'Épinard','Bette à carde':'Épinard','Mâche':'Laitue',
+    'Roquette':'Laitue','Cresson':'Laitue','Pak-choï':'Chou',
+    'Scarole':'Laitue','Chicorée':'Laitue','Endive':'Laitue',
+    'Topinambour':'Pomme de terre','Rutabaga':'Betterave',
+    'Maïs':'Maïs doux','Oignon blanc':'Oignon blanc','Rhubarbe':'Betterave',
+    'Épinard malabar':'Épinard',
+  };
+  const key=POT_SVG_PLANTS[nom]?nom:(aliases[nom]||'default');
+  const inner=POT_SVG_PLANTS[key]||POT_SVG_PLANTS['default'];
+  // Identifiant unique basé sur le nom pour éviter les conflits de gradients
+  const uid='s'+nom.replace(/[^a-zA-Z0-9]/g,'').substring(0,6);
+  // Remplacer les id de gradients pour éviter les conflits entre instances
+  const innerFixed=inner.replace(/id="(g[a-z0-9]+)"/g,'id="$1'+uid+'"')
+                        .replace(/url\(#(g[a-z0-9]+)\)/g,'url(#$1'+uid+')');
+  const defs='<defs>'+
+    '<radialGradient id="gtom'+uid+'" cx="36%" cy="28%" r="62%"><stop offset="0%" stop-color="#ff7860"/><stop offset="55%" stop-color="#d42020"/><stop offset="100%" stop-color="#880808"/></radialGradient>'+
+    '<radialGradient id="gcar'+uid+'" cx="36%" cy="28%" r="65%"><stop offset="0%" stop-color="#ffc060"/><stop offset="50%" stop-color="#d06010"/><stop offset="100%" stop-color="#7a3000"/></radialGradient>'+
+    '<radialGradient id="grad'+uid+'" cx="36%" cy="28%" r="62%"><stop offset="0%" stop-color="#ffaab8"/><stop offset="50%" stop-color="#d02848"/><stop offset="100%" stop-color="#7a0818"/></radialGradient>'+
+    '<radialGradient id="gpoi'+uid+'" cx="35%" cy="30%" r="65%"><stop offset="0%" stop-color="#ff7050"/><stop offset="55%" stop-color="#d43020"/><stop offset="100%" stop-color="#8a0808"/></radialGradient>'+
+    '<radialGradient id="gaub'+uid+'" cx="35%" cy="28%" r="65%"><stop offset="0%" stop-color="#b060e0"/><stop offset="55%" stop-color="#5820a8"/><stop offset="100%" stop-color="#2a0860"/></radialGradient>'+
+    '<radialGradient id="gcuc'+uid+'" cx="35%" cy="30%" r="65%"><stop offset="0%" stop-color="#88d050"/><stop offset="55%" stop-color="#4a8818"/><stop offset="100%" stop-color="#204808"/></radialGradient>'+
+    '<radialGradient id="gcou'+uid+'" cx="35%" cy="30%" r="65%"><stop offset="0%" stop-color="#80c840"/><stop offset="55%" stop-color="#3e8010"/><stop offset="100%" stop-color="#1a4808"/></radialGradient>'+
+    '<radialGradient id="goni'+uid+'" cx="38%" cy="30%" r="60%"><stop offset="0%" stop-color="#ffd070"/><stop offset="55%" stop-color="#c88020"/><stop offset="100%" stop-color="#6a3808"/></radialGradient>'+
+    '<radialGradient id="gonib'+uid+'" cx="38%" cy="30%" r="60%"><stop offset="0%" stop-color="#ffffff"/><stop offset="45%" stop-color="#e8e0d0"/><stop offset="100%" stop-color="#b0a898"/></radialGradient>'+
+    '<radialGradient id="gbet'+uid+'" cx="36%" cy="28%" r="62%"><stop offset="0%" stop-color="#c070c8"/><stop offset="52%" stop-color="#6820a0"/><stop offset="100%" stop-color="#2a0858"/></radialGradient>'+
+    '<radialGradient id="gpom'+uid+'" cx="36%" cy="32%" r="62%"><stop offset="0%" stop-color="#e0c060"/><stop offset="52%" stop-color="#b07020"/><stop offset="100%" stop-color="#6a3808"/></radialGradient>'+
+    '<radialGradient id="gpois'+uid+'" cx="35%" cy="30%" r="65%"><stop offset="0%" stop-color="#90c840"/><stop offset="55%" stop-color="#508010"/><stop offset="100%" stop-color="#224808"/></radialGradient>'+
+    '<radialGradient id="gmaïs'+uid+'" cx="35%" cy="28%" r="65%"><stop offset="0%" stop-color="#f0d050"/><stop offset="55%" stop-color="#c89010"/><stop offset="100%" stop-color="#7a4e04"/></radialGradient>'+
+  '</defs>';
+  return '<svg viewBox="0 0 64 104" width="14" height="23" style="display:block;overflow:visible;">'+defs+innerFixed+'</svg>';
+}
+
 function potGetPlantSvg(nom){
   const aliases={
     'Laitue batavia':'Laitue','Laitue romaine':'Laitue','Laitue d\'hiver':'Laitue',
@@ -4878,51 +4922,137 @@ function potGetPlantSvg(nom){
   return '<svg viewBox="0 0 64 104" width="32" height="52" style="display:block;overflow:visible;">'+defs+inner+'</svg>';
 }
 
+// ── HELPER : retourne toujours un tableau de noms (compat. anciennes données string) ──
+function potGetNoms(r,c,yStr){
+  const val=potData[r]&&potData[r][c]&&potData[r][c][yStr];
+  if(!val) return [];
+  return Array.isArray(val)?val:[val];
+}
+// ── HELPER : enregistre 1 ou 2 noms (nettoie les vides) ──
+function potSetNoms(r,c,yStr,arr){
+  const clean=arr.filter(Boolean);
+  if(!potData[r]) potData[r]={};
+  if(!potData[r][c]) potData[r][c]={};
+  if(clean.length===0) delete potData[r][c][yStr];
+  else if(clean.length===1) potData[r][c][yStr]=clean[0];
+  else potData[r][c][yStr]=clean;
+}
+
 function potRenderJardin(){
   const container=document.getElementById('jardin-rangees');if(!container) return;
   const yStr=String(potYear),prevY=String(potYear-1);
   const LETTERS='ABCDEFGHIJKL';
   const containerW=container.offsetWidth||360;
-  const PLANT_W=36;
+  // Largeur réelle d'une case — remplit toute la case de plantes
+  const cellW=Math.floor((containerW-22-24)/potCols)-12;
+  // Plante = 14px large, on remplit sans laisser de trou
+  const NB_PLANTS=Math.max(6, Math.min(30, Math.floor(cellW/14)));
+
+  // ── Génère le rang mélangé en quinconce — serré sur toute la largeur ──
+  function buildRangMix(nom0, nom1, n){
+    let h='<div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:nowrap;width:100%;padding:2px 2px 0;">';
+    for(let i=0;i<n;i++){
+      const nom = (!nom1) ? nom0 : (i%2===0 ? nom0 : nom1);
+      const mt  = (nom1 && i%2!==0) ? '0px' : '5px';
+      h+='<div style="display:flex;flex-direction:column;align-items:center;margin-top:'+mt+';flex-shrink:0;">'
+        +potGetPlantSvgSmall(nom)
+        +'</div>';
+    }
+    h+='</div>';
+    return h;
+  }
+
   let html='<div style="width:100%;">';
   for(let r=0;r<potRows;r++){
     const parts=[];
     for(let c=0;c<potCols;c++){
-      const nom=potData[r]&&potData[r][c]&&potData[r][c][yStr]||null;
-      const prevNom=potData[r]&&potData[r][c]&&potData[r][c][prevY]||null;
-      if(nom){
-        const assoc=potAssocStatus(r,c,nom);
-        const rot=potRotStatus(r,c,nom,potYear);
+      const noms=potGetNoms(r,c,yStr);
+      const prevNoms=potGetNoms(r,c,prevY);
+      const prevNom=prevNoms[0]||null;
+
+      if(noms.length>0){
+        // Couleur bordure
         let bc='rgba(90,150,70,0.4)',bg='rgba(12,26,8,0.65)';
-        if(assoc==='bad'||rot==='bad'){bc='rgba(220,70,70,0.55)';bg='rgba(65,10,10,0.55)';}
-        else if(assoc==='good'){bc='rgba(74,158,106,0.6)';bg='rgba(8,55,25,0.45)';}
-        else if(rot==='warn'){bc='rgba(220,130,30,0.5)';bg='rgba(50,35,5,0.45)';}
+        let worstAssoc='neutre',worstRot='ok';
+        noms.forEach(n=>{
+          const a=potAssocStatus(r,c,n);
+          const rot2=potRotStatus(r,c,n,potYear);
+          if(a==='bad') worstAssoc='bad'; else if(a==='good'&&worstAssoc==='neutre') worstAssoc='good';
+          if(rot2==='bad') worstRot='bad'; else if(rot2==='warn'&&worstRot==='ok') worstRot='warn';
+        });
+        if(worstAssoc==='bad'||worstRot==='bad'){bc='rgba(220,70,70,0.55)';bg='rgba(65,10,10,0.55)';}
+        else if(worstAssoc==='good'){bc='rgba(74,158,106,0.6)';bg='rgba(8,55,25,0.45)';}
+        else if(worstRot==='warn'){bc='rgba(220,130,30,0.5)';bg='rgba(50,35,5,0.45)';}
+
+        // Rang mélangé
+        const rangHtml = buildRangMix(noms[0], noms[1]||null, noms.length===1 ? Math.ceil(NB_PLANTS/2) : NB_PLANTS);
+
+        // Noms + icônes rotation en bas
+        const rot0=potRotStatus(r,c,noms[0],potYear);
+        const rotIco=n=>n==='ok'?'<span style="color:#6dea90;font-size:7px;">✓</span>':n==='bad'?'<span style="color:#f08080;font-size:7px;">✕</span>':n==='warn'?'<span style="color:#f0c060;font-size:7px;">⚠</span>':'';
+        let nomsHtml;
+        if(noms.length===1){
+          nomsHtml='<div style="font-family:\'Cormorant Garamond\',serif;font-size:9px;font-weight:600;color:#c8dc88;text-align:center;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;padding:0 14px 0 2px;">'
+            +noms[0].substring(0,13)+' '+rotIco(rot0)+'</div>';
+        } else {
+          const rot1=potRotStatus(r,c,noms[1],potYear);
+          nomsHtml='<div style="display:flex;justify-content:space-around;width:100%;margin-top:1px;">'
+            +'<span style="font-size:8px;color:#c8dc88;text-align:center;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 1px;">'+noms[0].substring(0,8)+' '+rotIco(rot0)+'</span>'
+            +'<span style="font-size:8px;color:#c8dc88;text-align:center;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 1px;">'+noms[1].substring(0,8)+' '+rotIco(rot1)+'</span>'
+            +'</div>';
+        }
+
+        // Badge duo (compagnonnage)
+        let duoHtml='';
+        if(noms.length===2){
+          const comp=(typeof compagnons!=='undefined')?compagnons:{};
+          const c1=comp[noms[0]]||{allies:[],enemies:[]};
+          const c2=comp[noms[1]]||{allies:[],enemies:[]};
+          if(c1.enemies.includes(noms[1])||c2.enemies.includes(noms[0])){
+            duoHtml='<div style="font-size:7px;font-family:Cinzel,serif;padding:1px 4px;border-radius:3px;color:#f08060;background:rgba(220,60,40,0.18);white-space:nowrap;">❌ Incompatibles</div>';
+          } else if(c1.allies.includes(noms[1])||c2.allies.includes(noms[0])){
+            duoHtml='<div style="font-size:7px;font-family:Cinzel,serif;padding:1px 4px;border-radius:3px;color:#6dea90;background:rgba(46,180,80,0.18);white-space:nowrap;">🤝 Bonnes compagnes</div>';
+          }
+        }
+
+        // Héritage sol
         let agroHtml='';
         if(prevNom){
-          const sc=agroScore(POT_FAMILLES[prevNom],POT_FAMILLES[nom]);
+          const sc=agroScore(POT_FAMILLES[prevNom],POT_FAMILLES[noms[0]]);
           const lb=agroLabel(sc);
           const ac=sc===3?'#6dea90':sc===2?'#c8dc88':sc===0?'#f08060':'#8aaa78';
           const ab=sc===3?'rgba(46,180,80,0.18)':sc===2?'rgba(140,192,80,0.12)':sc===0?'rgba(220,60,40,0.15)':'rgba(100,120,100,0.1)';
-          agroHtml='<div style="font-size:7px;font-family:Cinzel,serif;padding:1px 4px;border-radius:3px;color:'+ac+';background:'+ab+';margin-top:1px;white-space:nowrap;">'+lb.txt+'</div>';
+          agroHtml='<div style="font-size:7px;font-family:Cinzel,serif;padding:1px 4px;border-radius:3px;color:'+ac+';background:'+ab+';white-space:nowrap;">'+lb.txt+'</div>';
         }
-        const rotIcon=rot==='ok'?'<span style="color:#6dea90;font-size:8px;">✓</span>':rot==='bad'?'<span style="color:#f08080;font-size:8px;">✕</span>':rot==='warn'?'<span style="color:#f0c060;font-size:8px;">⚠</span>':'';
-        const segW=Math.floor((containerW-24)/potCols);
-        const nbP=Math.max(1,Math.floor((segW-8)/PLANT_W));
-        let plantsRow='<div style="display:flex;align-items:flex-end;justify-content:space-around;width:100%;padding:2px 2px 0;">';
-        for(let p=0;p<nbP;p++) plantsRow+=potGetPlantSvg(nom);
-        plantsRow+='</div>';
+
+        // Boutons ✕ et ↺ — un par plante
+        const btnStyle='background:none;border:none;color:rgba(200,80,80,0.28);font-size:9px;cursor:pointer;z-index:2;line-height:1;padding:0 3px;';
+        const btnRStyle='background:rgba(200,168,40,0.12);border:1px solid rgba(200,168,40,0.35);border-radius:4px;color:#e0c870;font-size:7px;cursor:pointer;z-index:10;line-height:1;padding:1px 3px;font-family:Cinzel,serif;';
+        let btnsHtml;
+        if(noms.length===1){
+          btnsHtml='<button onclick="event.stopPropagation();potRemoveOne('+r+','+c+',0)" style="position:absolute;top:2px;right:2px;'+btnStyle+'" onmouseover="this.style.color=\'#e07070\'" onmouseout="this.style.color=\'rgba(200,80,80,0.28)\'">✕</button>'
+            +'<button onclick="event.stopPropagation();potRemplacer('+r+','+c+',0)" title="Remplacer" style="position:absolute;bottom:2px;right:2px;'+btnRStyle+'" onmouseover="this.style.background=\'rgba(200,168,40,0.3)\'" onmouseout="this.style.background=\'rgba(200,168,40,0.12)\'">↺</button>';
+        } else {
+          btnsHtml='<button onclick="event.stopPropagation();potRemoveOne('+r+','+c+',0)" title="Retirer '+noms[0]+'" style="position:absolute;top:2px;left:2px;'+btnStyle+'" onmouseover="this.style.color=\'#e07070\'" onmouseout="this.style.color=\'rgba(200,80,80,0.28)\'">✕</button>'
+            +'<button onclick="event.stopPropagation();potRemoveOne('+r+','+c+',1)" title="Retirer '+noms[1]+'" style="position:absolute;top:2px;right:2px;'+btnStyle+'" onmouseover="this.style.color=\'#e07070\'" onmouseout="this.style.color=\'rgba(200,80,80,0.28)\'">✕</button>'
+            +'<button onclick="event.stopPropagation();potRemplacer('+r+','+c+',0)" title="Remplacer '+noms[0]+'" style="position:absolute;bottom:2px;left:2px;'+btnRStyle+'" onmouseover="this.style.background=\'rgba(200,168,40,0.3)\'" onmouseout="this.style.background=\'rgba(200,168,40,0.12)\'">↺</button>'
+            +'<button onclick="event.stopPropagation();potRemplacer('+r+','+c+',1)" title="Remplacer '+noms[1]+'" style="position:absolute;bottom:2px;right:2px;'+btnRStyle+'" onmouseover="this.style.background=\'rgba(200,168,40,0.3)\'" onmouseout="this.style.background=\'rgba(200,168,40,0.12)\'">↺</button>';
+        }
+
         parts.push(
-          '<div style="flex:1;display:flex;flex-direction:column;align-items:center;background:'+bg+';border:1.5px solid '+bc+';border-radius:7px;padding:4px 2px 4px;cursor:pointer;position:relative;min-width:0;" onclick="potCellTap('+r+','+c+')">'
-          +'<button onclick="event.stopPropagation();potRemove('+r+','+c+')" style="position:absolute;top:2px;right:3px;background:none;border:none;color:rgba(200,80,80,0.25);font-size:9px;cursor:pointer;z-index:2;line-height:1;" onmouseover="this.style.color=\'#e07070\'" onmouseout="this.style.color=\'rgba(200,80,80,0.25)\'">✕</button>'
-          +'<button onclick="event.stopPropagation();potRemplacer('+r+','+c+')" style="position:absolute;bottom:2px;left:2px;background:rgba(200,168,40,0.12);border:1px solid rgba(200,168,40,0.35);border-radius:4px;color:#e0c870;font-size:8px;cursor:pointer;z-index:10;line-height:1;padding:1px 4px;font-family:Cinzel,serif;letter-spacing:.04em;" onmouseover="this.style.background=\'rgba(200,168,40,0.3)\'" onmouseout="this.style.background=\'rgba(200,168,40,0.12)\'">↺</button>'
-          +plantsRow
-          +'<div style="font-family:\'Cormorant Garamond\',serif;font-size:10px;font-weight:600;color:#c8dc88;text-align:center;margin-top:2px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;padding:0 4px;">'+nom.substring(0,14)+' '+rotIcon+'</div>'
-          +agroHtml+'</div>'
+          '<div style="flex:1;display:flex;flex-direction:column;align-items:center;background:'+bg+';border:1.5px solid '+bc+';border-radius:7px;padding:4px 2px 4px;cursor:pointer;position:relative;min-width:0;overflow:hidden;" onclick="potCellTap('+r+','+c+')">'
+          +btnsHtml
+          +rangHtml
+          +nomsHtml
+          +duoHtml
+          +agroHtml
+          +'</div>'
         );
+
       } else if(prevNom){
         parts.push(
           '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,22,8,0.3);border:1.5px dashed rgba(90,140,70,0.13);border-radius:7px;padding:4px 2px;cursor:pointer;min-width:0;" onclick="potCellTap('+r+','+c+')" onmouseover="this.style.borderColor=\'rgba(168,192,96,0.4)\'" onmouseout="this.style.borderColor=\'rgba(90,140,70,0.13)\'">'
-          +'<div style="opacity:.2;pointer-events:none;">'+potGetPlantSvg(prevNom)+'</div>'
+          +'<div style="opacity:.18;pointer-events:none;">'+potGetPlantSvg(prevNom)+'</div>'
           +'<div style="font-size:8px;color:rgba(168,192,96,0.3);font-family:Cinzel,serif;text-align:center;line-height:1.3;margin-top:2px;">'+prevY.slice(2)+':'+prevNom.substring(0,8)+'<br><span style="font-size:7px;opacity:.6;">↓ placer</span></div>'
           +'</div>'
         );
@@ -4945,14 +5075,15 @@ function potRenderJardin(){
 }
 
 
+
 function potShowRotBanner(){
   const banner=document.getElementById('pot-rot-banner');if(!banner) return;
   const prevYear=String(potYear-1);let nbSugg=0,nbAlert=0;
   for(let r=0;r<potRows;r++) for(let c=0;c<potCols;c++){
-    const prev=potData[r]&&potData[r][c]&&potData[r][c][prevYear];
-    const cur=potData[r]&&potData[r][c]&&potData[r][c][String(potYear)];
-    if(prev&&!cur) nbSugg++;
-    if(cur){const rot=potRotStatus(r,c,cur,potYear);if(rot==='bad') nbAlert++;}
+    const prev=potGetNoms(r,c,prevYear);
+    const cur=potGetNoms(r,c,String(potYear));
+    if(prev.length>0&&cur.length===0) nbSugg++;
+    cur.forEach(n=>{const rot=potRotStatus(r,c,n,potYear);if(rot==='bad') nbAlert++;});
   }
   if(nbSugg>0||nbAlert>0){
     const parts=[];
@@ -4965,7 +5096,10 @@ function potShowRotBanner(){
 function potRotStatus(r,c,nom,year){
   const fam=POT_FAMILLES[nom];if(!fam) return null;
   const delai=POT_DELAI[fam]||3;
-  for(let d=1;d<=delai;d++){const pn=potData[r]&&potData[r][c]&&potData[r][c][String(year-d)];if(!pn) continue;if(POT_FAMILLES[pn]===fam) return d===1?'bad':'warn';}
+  for(let d=1;d<=delai;d++){
+    const prev=potGetNoms(r,c,String(year-d));
+    if(prev.some(pn=>POT_FAMILLES[pn]===fam)) return d===1?'bad':'warn';
+  }
   return 'ok';
 }
 function potAssocStatus(r,c,nom){
@@ -4973,42 +5107,83 @@ function potAssocStatus(r,c,nom){
   let hasBad=false,hasGood=false;
   [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dr,dc])=>{
     const nr=r+dr,nc=c+dc;if(nr<0||nr>=potRows||nc<0||nc>=potCols) return;
-    const voisin=potData[nr]&&potData[nr][nc]&&potData[nr][nc][yStr];if(!voisin) return;
-    const c1=comp[nom]||{allies:[],enemies:[]},c2=comp[voisin]||{allies:[],enemies:[]};
-    if(c1.enemies.includes(voisin)||c2.enemies.includes(nom)) hasBad=true;
-    if(c1.allies.includes(voisin)||c2.allies.includes(nom)) hasGood=true;
+    const voisins=potGetNoms(nr,nc,yStr);
+    voisins.forEach(voisin=>{
+      const c1=comp[nom]||{allies:[],enemies:[]},c2=comp[voisin]||{allies:[],enemies:[]};
+      if(c1.enemies.includes(voisin)||c2.enemies.includes(nom)) hasBad=true;
+      if(c1.allies.includes(voisin)||c2.allies.includes(nom)) hasGood=true;
+    });
   });
   if(hasBad) return 'bad';if(hasGood) return 'good';return 'neutre';
 }
 function potCellTap(r,c){
-  const yStr=String(potYear),nom=potData[r]&&potData[r][c]&&potData[r][c][yStr];
-  if(!potSelVeg){if(nom) potShowCellInfo(r,c,nom);else potSetInfo('⬅ Sélectionnez d\'abord une plante dans la palette.');return;}
-  if(!potData[r]) potData[r]={};if(!potData[r][c]) potData[r][c]={};
-  potData[r][c][yStr]=potSelVeg;potSave();potRenderJardin();
+  const yStr=String(potYear);
+  const noms=potGetNoms(r,c,yStr);
+  if(!potSelVeg){
+    if(noms.length>0) potShowCellInfo(r,c,noms);
+    else potSetInfo('⬅ Sélectionnez d\'abord une plante dans la palette.');
+    return;
+  }
+  if(noms.length>=2){
+    potSetInfo('⚠️ Case pleine (2 plantes max). Retirez une plante avec ✕ avant d\'en ajouter une autre.');
+    return;
+  }
+  if(noms.includes(potSelVeg)){
+    potSetInfo('⚠️ <b>'+potSelVeg+'</b> est déjà dans cette case.');
+    return;
+  }
+  const newNoms=[...noms, potSelVeg];
+  potSetNoms(r,c,yStr,newNoms);
+  potSave();potRenderJardin();
   const rot=potRotStatus(r,c,potSelVeg,potYear),assoc=potAssocStatus(r,c,potSelVeg);
-  const prevNom=potData[r][c][String(potYear-1)];
+  const prevNom=(potGetNoms(r,c,String(potYear-1)))[0]||null;
   const sc=prevNom?agroScore(POT_FAMILLES[prevNom],POT_FAMILLES[potSelVeg]):null;
   const lb=sc!==null?agroLabel(sc):null;
-  let msg='🌱 <b>'+potSelVeg+'</b> en '+String.fromCharCode(65+r)+(c+1)+'.';
+  let msg='🌱 <b>'+potSelVeg+'</b> en '+String.fromCharCode(65+r)+(c+1);
+  if(newNoms.length===2) msg+=' <span style="color:#c8e070">(duo avec '+noms[0]+')</span>';
+  msg+='.';
   if(lb) msg+=' Héritage sol : <span class="agro-badge '+lb.cls+'" style="font-size:.82rem;padding:2px 8px;border-radius:6px;">'+lb.txt+'</span>';
   if(rot==='bad') msg+=' <span style="color:#f08080">⚠ Même famille trop tôt !</span>';
   if(assoc==='bad') msg+=' <span style="color:#f08080">❌ Mauvaise association !</span>';
   if(assoc==='good') msg+=' <span style="color:#6dea90">🤝 Bonne association.</span>';
   potSetInfo(msg);
 }
-function potRemove(r,c){if(potData[r]&&potData[r][c]) delete potData[r][c][String(potYear)];potSave();potRenderJardin();potSetInfo('Case vidée.');}
-function potShowCellInfo(r,c,nom){
-  const fam=POT_FAMILLES[nom],famLbl=POT_FAM_LABELS[fam]||'—';
-  const delai=POT_DELAI[fam]||3;
-  const prevNom=potData[r]&&potData[r][c]&&potData[r][c][String(potYear-1)];
-  const sc=prevNom?agroScore(POT_FAMILLES[prevNom],fam):null;
-  const lb=sc!==null?agroLabel(sc):null;
+function potRemoveOne(r,c,idx){
+  const yStr=String(potYear);
+  const noms=potGetNoms(r,c,yStr);
+  noms.splice(idx,1);
+  potSetNoms(r,c,yStr,noms);
+  potSave();potRenderJardin();
+  potSetInfo(noms.length===0?'Case vidée.':'Plante retirée — '+noms[0]+' reste dans la case.');
+}
+function potRemove(r,c){potSetNoms(r,c,String(potYear),[]);potSave();potRenderJardin();potSetInfo('Case vidée.');}
+function potShowCellInfo(r,c,noms){
+  if(!Array.isArray(noms)) noms=[noms];
+  const prevNom=(potGetNoms(r,c,String(potYear-1)))[0]||null;
   const hist=potData[r]&&potData[r][c]?potData[r][c]:{};
   const years=Object.keys(hist).sort();
-  const histStr=years.length>1?years.map(y=>y+' : '+hist[y]).join(' → '):'Aucun historique';
-  let msg='<b>'+nom+'</b> — '+famLbl+'<br>';
-  if(lb) msg+='Héritage sol : <b>'+lb.txt+'</b>'+(prevNom?' (après '+prevNom+')':'')+'<br>';
-  msg+='⏳ Délai min. : <b>'+delai+' ans</b><br>📋 '+histStr;
+  const histStr=years.length>1?years.map(y=>{
+    const v=hist[y]; return y+' : '+(Array.isArray(v)?v.join('+'):v);
+  }).join(' → '):'Aucun historique';
+  let msg='';
+  noms.forEach((nom,i)=>{
+    const fam=POT_FAMILLES[nom],famLbl=POT_FAM_LABELS[fam]||'—';
+    const sc=prevNom?agroScore(POT_FAMILLES[prevNom],fam):null;
+    const lb=sc!==null?agroLabel(sc):null;
+    if(noms.length>1) msg+='<b>Plante '+(i+1)+' :</b> ';
+    msg+='<b>'+nom+'</b> — '+famLbl;
+    if(lb) msg+=' · Héritage : '+lb.txt;
+    msg+='<br>';
+  });
+  if(noms.length===2){
+    const comp=(typeof compagnons!=='undefined')?compagnons:{};
+    const c1=comp[noms[0]]||{allies:[],enemies:[]};
+    const c2=comp[noms[1]]||{allies:[],enemies:[]};
+    if(c1.allies.includes(noms[1])||c2.allies.includes(noms[0])) msg+='🤝 <b>Bonnes compagnes !</b><br>';
+    else if(c1.enemies.includes(noms[1])||c2.enemies.includes(noms[0])) msg+='❌ <b>Incompatibles !</b><br>';
+    else msg+='↔ Association neutre<br>';
+  }
+  msg+='📋 '+histStr;
   potSetInfo(msg);
 }
 function potBuildPalette(){
@@ -5686,7 +5861,7 @@ potFullReset = function(){
       const MOIS_GEL_ZONE = { montagne:9, froide:10, temperee:11, douce:12 };
       function getMoisGel(){ return MOIS_GEL_ZONE[climateZone] || 10; }
 
-      let _remplR=-1, _remplC=-1, _remplSel=null;
+      let _remplR=-1, _remplC=-1, _remplIdx=0, _remplSel=null;
 
       // Calculer la faisabilité : peut-on récolter avant les gelées ?
       function calcFaisabilite(plante, moisSemis){
@@ -5723,24 +5898,25 @@ potFullReset = function(){
         return '<span style="font-size:.5rem;font-family:Cinzel,serif;padding:1px 5px;border-radius:4px;background:rgba(220,130,30,.1);color:#f0c060;border:1px solid rgba(220,130,30,.3);">↔ Neutre</span>';
       }
 
-      window.potRemplacer = function(r, c){
-        _remplR=r; _remplC=c; _remplSel=null;
+      window.potRemplacer = function(r, c, idx){
+        // idx : 0 ou 1 — quelle plante du duo remplacer (défaut 0)
+        if(idx===undefined) idx=0;
+        _remplR=r; _remplC=c; _remplIdx=idx; _remplSel=null;
         const yStr=String(potYear);
-        const nomActuel = potData[r]&&potData[r][c]&&potData[r][c][yStr];
+        const noms=potGetNoms(r,c,yStr);
+        const nomActuel = noms[idx]||noms[0];
         if(!nomActuel){ potSetInfo('Case vide — utilisez la palette pour planter.'); return; }
         const famActuelle = POT_FAMILLES[nomActuel]||null;
 
-        // Mois actuel
         const moisNow = new Date().getMonth()+1;
 
         document.getElementById('potRemplTitle').textContent = '↺ Remplacer — '+ nomActuel;
         document.getElementById('potRemplSub').innerHTML =
-          'Vous arrachez : <b>'+nomActuel+'</b><br>'+
+          'Vous arrachez : <b>'+nomActuel+'</b>'+(noms.length===2?' (plante '+(idx+1)+'/2 du duo)':'')+'<br>'+
           'Mois actuel : <b>'+MOIS_LONG[moisNow]+'</b> · '+
           (famActuelle ? 'Famille : '+famActuelle : '')+
           '<br><i style="font-size:.8rem;">⚠ Zone '+climateZone+' : gel possible dès '+['','Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'][getMoisGel()]+'</i>';
 
-        // Trier les plantes par score total
         const scored = plantes.map(function(p){
           const fam = POT_FAMILLES[p.nom]||null;
           const rot = agroScore(famActuelle, fam);
@@ -5752,10 +5928,7 @@ potFullReset = function(){
           return Object.assign({}, p, {rot:rot, fais:fais, total:total, fam:fam});
         }).sort(function(a,b){ return b.total-a.total || b.rot-a.rot; });
 
-        // Top 6 suggestions
         const top = scored.filter(function(p){ return p.total>=0; }).slice(0,6);
-        const topNoms = new Set(top.map(function(p){ return p.nom; }));
-        // Les plantes non viables ne sont pas proposées du tout
 
         document.getElementById('potRemplSugTitle').textContent =
           top.length ? '⭐ Meilleures successions après '+nomActuel+' en '+MOIS_LONG[moisNow] : '⭐ Aucune plante idéale ce mois-ci';
@@ -5778,10 +5951,6 @@ potFullReset = function(){
           '</div>';
         }).join('') || '<div style="color:#b0cc90;font-style:italic;font-size:.85rem;padding:4px 0;">Aucune suggestion pour ce mois.</div>';
 
-        // Autres plantes
-
-
-
         document.getElementById('potRemplPreview').style.display='none';
         document.getElementById('potRemplModal').style.display='flex';
       };
@@ -5790,17 +5959,14 @@ potFullReset = function(){
         var nom = typeof elOrNom==='string' ? elOrNom : (elOrNom.closest ? elOrNom.closest('[data-nom]') : elOrNom).getAttribute('data-nom');
         var el2 = typeof elOrNom==='string' ? el : (elOrNom.closest ? elOrNom.closest('[data-nom]') : elOrNom);
         _remplSel = nom;
-        // Désélectionner tout
         document.querySelectorAll('#potRemplSuggestions > div, #potRemplAutres > button').forEach(function(e){
           e.style.borderColor='rgba(90,140,70,0.25)';
           e.style.background='';
         });
-        // Sélectionner
         var card = el2;
         card.style.borderColor='#4a9e6a';
         card.style.background='rgba(74,158,106,0.15)';
 
-        // Preview récolte
         const p = plantes.find(function(x){ return x.nom===nom; });
         if(!p) return;
         const moisNow = new Date().getMonth()+1;
@@ -5830,14 +5996,16 @@ potFullReset = function(){
 
       window.potRemplConfirm = function(){
         if(!_remplSel){ potSetInfo('⚠ Choisissez une plante de remplacement.'); return; }
-        if(!potData[_remplR]) potData[_remplR]={};
-        if(!potData[_remplR][_remplC]) potData[_remplR][_remplC]={};
-        const ancienNom = potData[_remplR][_remplC][String(potYear)]||'';
-        potData[_remplR][_remplC][String(potYear)] = _remplSel;
+        const yStr=String(potYear);
+        const noms=potGetNoms(_remplR,_remplC,yStr);
+        const ancienNom = noms[_remplIdx]||noms[0]||'';
+        noms[_remplIdx]=_remplSel;
+        potSetNoms(_remplR,_remplC,yStr,noms);
         potSave(); potRenderJardin();
-        potSetInfo('✅ '+ancienNom+' remplacé par '+_remplSel+' — rotation et récolte vérifiées.');
+        potSetInfo('✅ '+ancienNom+' remplacé par '+_remplSel+'.');
         potRemplClose();
       };
+
 
       // Helper emoji plante (version simplifiée)
       window.potGetPlantEmoji = function(nom){
@@ -5851,7 +6019,7 @@ potFullReset = function(){
           'Oignon':'🧅','Ail':'🧄','Poireau':'🌿','Échalote':'🧅',
           'Chou':'🥬','Chou-fleur':'🥦','Brocoli':'🥦','Chou rouge':'🥬','Laitue':'🥗',
           'Épinard':'🌿','Mâche':'🌿','Roquette':'🌿','Basilic':'🌿','Persil':'🌿',
-          'Fraise':'🍓','Framboise':'🫐','Maïs doux':'🌽',
+          'Fraise':'🍓','Framboise':'🫐','Tomate':'🍅','Maïs doux':'🌽',
           'Tournesol':'🌻','Capucine':'🌸','Souci':'🌼','Cosmos':'🌸',
         };
         return map[nom]||'🌱';
