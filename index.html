@@ -399,6 +399,7 @@
         .creneau-card.selected .creneau-radio::after{content:'';width:6px;height:6px;border-radius:50%;background:#fff;}
         .creneau-info{flex:1;min-width:0;overflow:hidden;}
         .creneau-date{font-family:'Playfair Display',serif;font-size:.98rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:capitalize;}
+        .creneau-date.multiday{white-space:normal;overflow:visible;text-overflow:unset;font-size:.88rem;line-height:1.35;}
         .creneau-meta{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap;}
         .creneau-num{font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:.06em;color:var(--muted);background:rgba(255,255,255,0.06);border:1px solid var(--rim);border-radius:5px;padding:1px 6px;white-space:nowrap;flex-shrink:0;}
         .creneau-card.selected .creneau-num{color:var(--gold);border-color:rgba(140,192,80,0.4);}
@@ -469,6 +470,11 @@
         .csel-option{display:flex;align-items:center;gap:10px;padding:9px 14px;font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--silver);cursor:pointer;border-bottom:1px solid rgba(90,140,70,0.08);}
         .csel-option:last-child{border-bottom:none;}
         .csel-option:hover{background:rgba(140,192,80,0.14);color:var(--text);}
+        .csel-option.hors-saison{background:transparent;}
+        .csel-option.hors-saison:hover{background:rgba(200,80,60,0.08);}
+        .csel-option.hors-saison .csel-nom{opacity:.45;filter:grayscale(.5);}
+        .csel-option.gel .csel-raison{font-size:.78rem;font-style:italic;color:#ff5555;margin-left:8px;white-space:nowrap;}
+        .csel-option.hs .csel-raison{font-size:.78rem;font-style:italic;color:#ffaa00;margin-left:8px;white-space:nowrap;}
         /* ── PENSE-BÊTE ── */
         .pensebete-block{position:relative;z-index:3;max-width:860px;width:100%;margin:0 auto;padding:0 24px 40px;box-sizing:border-box;}
         .pensebete-inner{background:rgba(5,15,5,0.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(140,192,80,0.25);border-radius:16px;padding:18px 20px;box-shadow:0 4px 24px rgba(0,0,0,0.5);}
@@ -1479,7 +1485,7 @@ async function checkPassword(){
     // ── Constantes globales gel & biodynamie ──
     const GEL_ZONE_GLOBAL = { montagne:4, froide:4, temperee:3, douce:1 };
     const GELIVES_GLOBAL = ['Tomate','Tomate cerise','Poivron','Aubergine','Piment','Basilic','Melon',
-      'Concombre','Courgette','Haricot','Maïs doux','Maïs','Céleri branche','Céleri-rave',
+      'Concombre','Cornichon','Courgette','Haricot','Maïs doux','Maïs','Céleri branche','Céleri-rave',
       'Pétunia','Géranium','Pomme de terre','Cyclanthère','Courge butternut','Potiron'];
     const PAS_SEMIS_GLOBAL = ['Raisin','Figue','Abricot','Pêche','Cerise','Prune','Pomme','Poire','Noisette',
       'Framboise','Groseille','Cassis','Mûre','Myrtille','Rose','Pivoine','Tulipe','Narcisse',
@@ -2174,10 +2180,13 @@ async function checkPassword(){
           const limitHour = s.limitDate ? s.limitDate.getHours() : -1;
           const isNocturne = limitHour >= 0 && (limitHour >= 21 || limitHour < 6);
           const limitStr = s.limitDate ? fmtHeure(s.limitDate) : '';
+          const isMultiDay = s.allDays && s.allDays.length > 1;
           const limitHtml = limitStr
             ? isNocturne
               ? `<span class="creneau-detail" style="color:#90b870">🌙 Toute la journée</span>`
-              : `<span class="creneau-detail" style="color:#e8c060">⏰ Jusqu'à ${limitStr}</span>`
+              : isMultiDay
+                ? `<span class="creneau-detail" style="color:#e8c060">⏰ Dernier jour jusqu'à ${limitStr}</span>`
+                : `<span class="creneau-detail" style="color:#e8c060">⏰ Jusqu'à ${limitStr}</span>`
             : '';
           // Risque de gel
           const gelMois=GEL_ZONE_GLOBAL[climateZone]||3;
@@ -2201,7 +2210,7 @@ async function checkPassword(){
           return '<div class="creneau-card'+meteoClass+'" data-idx="'+i+'">'
             +'<div class="creneau-radio"></div>'
             +'<div class="creneau-info">'
-              +'<div class="creneau-date">'+dLabel+'</div>'
+              +'<div class="creneau-date'+(sameDay?'':' multiday')+'">'+dLabel+'</div>'
               +'<div class="creneau-meta">'
                 +'<span class="creneau-num">'+moonIco+' '+jours+'</span>'
                 +'<span class="creneau-detail">Lune en '+s.sign.name+'</span>'
@@ -2725,6 +2734,7 @@ err=>{
       {nom:"Piment",        semisInt:[2,3],  repiMois:[5,6],  germ:2, duree:10, lieu:"serre",   note:"Similaire au poivron",duree_culture:18},
       {nom:"Courgette",     semisInt:[4,4],  repiMois:[5,6],  germ:1, duree:3,  lieu:"fenetre", note:"Croissance rapide, ne pas semer trop tôt",duree_culture:10},
       {nom:"Concombre",     semisInt:[4,4],  repiMois:[5,6],  germ:1, duree:3,  lieu:"fenetre", note:"Repiquer sans abîmer les racines",duree_culture:10},
+      {nom:"Cornichon",     semisInt:[4,5],  repiMois:[5,6],  germ:1, duree:3,  lieu:"fenetre", note:"Semer à 20°C, repiquer après les Saints de Glace",duree_culture:10},
       {nom:"Melon",         semisInt:[4,4],  repiMois:[5,6],  germ:1, duree:4,  lieu:"serre",   note:"Chaleur 20°C+ indispensable",duree_culture:14},
       {nom:"Céleri-rave",   semisInt:[2,3],  repiMois:[4,5],  germ:2, duree:10, lieu:"fenetre", note:"Semis superficiel, ne pas couvrir",duree_culture:24},
       {nom:"Céleri branche",semisInt:[2,3],  repiMois:[4,5],  germ:2, duree:10, lieu:"fenetre", note:"Semis superficiel",duree_culture:20},
@@ -2914,7 +2924,7 @@ return `
         return;
       }
       el.innerHTML = list.map(p => {
-        const fragile = ['Tomate','Tomate cerise','Poivron','Aubergine','Piment','Basilic','Melon','Concombre','Courgette'].includes(p.nom);
+        const fragile = ['Tomate','Tomate cerise','Poivron','Aubergine','Piment','Basilic','Melon','Concombre','Cornichon','Courgette'].includes(p.nom);
         const ok = !fragile || saintsPasses;
         const badgeText = fragile && !saintsPasses ? '⚠️ Attendre les Saints de Glace' : '✅ Peut être repiqué';
         const badgeCol  = ok ? 'badge-serre' : 'badge-fenetre';
@@ -3495,10 +3505,51 @@ const PI={
 
 // ── Helpers ──
 function gi(n){return PI[n]||'<svg viewBox="0 0 20 20" width="16" height="16"><circle cx="10" cy="12" r="5" fill="#5aaa60"/></svg>';}
+
+// Calcule l'état saisonnier d'une plante pour les sélecteurs csel
+function cselFaisabilite(nom){
+  if(typeof GELIVES_GLOBAL==='undefined') return {ok:true};
+  const mois=new Date().getMonth()+1;
+  const MOIS_GEL_Z={montagne:4,froide:4,temperee:3,douce:1};
+  const gelJ=MOIS_GEL_Z[climateZone]||4;
+
+  // Chercher d'abord dans la liste principale (plantes de jardin)
+  if(typeof plantes!=='undefined'){
+    const p=plantes.find(function(x){return x.nom===nom;});
+    if(p){
+      const semis=p.semis||p.plantation;
+      if(semis){
+        const a=semis[0], b=semis[1];
+        const enSaison=a<=b?(mois>=a&&mois<=b):(mois>=a||mois<=b);
+        if(!enSaison) return {ok:false, raison:'hors_saison'};
+      }
+    }
+  }
+  // Chercher dans la liste intérieure (serre/fenêtre)
+  if(typeof plantsInterieur!=='undefined'){
+    const pi=plantsInterieur.find(function(x){return x.nom===nom;});
+    if(pi){
+      const a=pi.semisInt[0], b=pi.semisInt[1];
+      const enSaison=a<=b?(mois>=a&&mois<=b):(mois>=a||mois<=b);
+      if(!enSaison) return {ok:false, raison:'hors_saison'};
+    }
+  }
+  // Risque gel uniquement pour les plantes de plein air (pas celles semées en serre/fenêtre)
+  if(mois<=gelJ && GELIVES_GLOBAL.indexOf(nom)>=0) return {ok:false, raison:'risque_gel'};
+  return {ok:true};
+}
+
 function mkOpt(nom,fn){
   var ic=PI[nom]||'';
   var n2=nom.replace(/'/g,"\\'");
-  return '<div class="csel-option" onclick="'+fn.replace('__N__',n2)+'"><span style="display:inline-flex;align-items:center;flex-shrink:0;margin-right:6px">'+ic+'</span><span>'+nom+'</span></div>';
+  var fais=cselFaisabilite(nom);
+  var cls=fais.ok===true?'':(fais.raison==='risque_gel'?' hors-saison gel':' hors-saison hs');
+  var raison=fais.ok===false&&fais.raison==='risque_gel'
+    ?'<span class="csel-raison">— ❄ risque de gel</span>'
+    :fais.ok===false
+    ?'<span class="csel-raison">— hors saison</span>'
+    :'';
+  return '<div class="csel-option'+cls+'" onclick="'+fn.replace('__N__',n2)+'"><span class="csel-nom" style="display:inline-flex;align-items:center;gap:6px;flex-shrink:0;"><span style="display:inline-flex;align-items:center;">'+ic+'</span><span>'+nom+'</span></span>'+raison+'</div>';
 }
 function setVal(id,ic,label,isph){
   var el=document.getElementById('val-'+id);
@@ -3654,12 +3705,14 @@ function dmtAgenda(btn){
 
   _agendaBtn = btn;
 
+  // Libellé action + plante
+  var actionLabel = {'semer':'🌱 Semer','planter':'🌿 Planter','repiquer':'↗️ Repiquer','récolter':'🌾 Récolter'}[action] || action.charAt(0).toUpperCase()+action.slice(1);
   var body = '';
-  body += '<b>' + action.charAt(0).toUpperCase() + action.slice(1) + '</b> : ' + esc(plante) + '<br>';
+  body += '<div style="font-size:1rem;margin-bottom:8px;">' + actionLabel + ' : <b style="color:#e0f0a0;">' + esc(plante) + '</b></div>';
 
   if(allDays.length > 1){
     // Période multi-jours → sélecteur de jour
-    body += '<div style="margin:10px 0 4px;font-family:Cinzel,serif;font-size:.72rem;letter-spacing:.08em;color:#a8c870;text-transform:uppercase;">Choisissez un jour :</div>';
+    body += '<div style="margin:8px 0 4px;font-family:Cinzel,serif;font-size:.72rem;letter-spacing:.08em;color:#a8c870;text-transform:uppercase;">Choisissez un jour :</div>';
     body += '<div id="aw-day-selector" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">';
     allDays.forEach(function(d, idx){
       var dateObj = new Date(d.iso);
@@ -3680,7 +3733,7 @@ function dmtAgenda(btn){
   } else {
     // Un seul jour (ou bouton sans data-alldays : aujourd'hui, semis intérieur, repiquage)
     var dateISO = allDays.length === 1 ? allDays[0].iso : (btn.getAttribute('data-date') || '');
-    if(dateISO) body += 'Date : <b>' + new Date(dateISO).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}) + '</b>';
+    if(dateISO) body += '<div style="margin-bottom:6px;">📅 <b>' + new Date(dateISO).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}) + '</b></div>';
     body += buildAgendaWarning(limitStr, changeStr, true);
   }
 
@@ -3695,18 +3748,19 @@ function dmtAgenda(btn){
 
 // Message d'avertissement — isLastDay : vrai uniquement pour le dernier jour de la période
 function buildAgendaWarning(limitStr, changeStr, isLastDay){
-  if(!limitStr) return '<div class="aw-warn">🌙 Créneau favorable <b>toute la journée</b></div>';
+  if(!limitStr || !isLastDay) return '<div class="aw-warn">🌙 Créneau favorable <b>toute la journée</b></div>';
   var limitD = new Date(limitStr);
   var limitH = limitD.getHours();
+  var limitMin = limitD.getMinutes();
   var isNocturne = (limitH >= 21 || limitH < 6);
-  var changeD = (changeStr && isLastDay) ? new Date(changeStr) : null;
+  var changeD = changeStr ? new Date(changeStr) : null;
   var hChange = changeD ? changeD.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : null;
   if(isNocturne){
     return '<div class="aw-warn">🌙 Créneau favorable <b>toute la journée</b>'
       + (hChange ? ' — changement de signe cette nuit à <b>' + hChange + '</b>' : '')
       + '</div>';
   } else {
-    var hLimit = limitD.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    var hLimit = String(limitH).padStart(2,'0') + ':' + String(limitMin).padStart(2,'0');
     return '<div class="aw-warn">⏰ Créneau favorable <b>jusqu\'à ' + hLimit + '</b>'
       + (hChange ? ' — changement de signe à <b>' + hChange + '</b>' : '')
       + '<br>⚠️ Arrêtez de jardiner à <b>' + hLimit + '</b> (30 min avant le changement de signe).'
@@ -3745,11 +3799,14 @@ function awSelectDay(btnEl, idx){
 
   var infoEl = document.getElementById('aw-day-info');
   if(infoEl){
+    var dateLabel = '<div style="margin-bottom:5px;font-size:.88rem;color:#c8e0a0;">📅 <b>'
+      + dateObj.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})
+      + '</b></div>';
     if(isLastDay){
-      infoEl.innerHTML = buildAgendaWarning(limitStr, changeStr, true);
+      infoEl.innerHTML = dateLabel + buildAgendaWarning(limitStr, changeStr, true);
     } else {
-      // Jour intermédiaire : toute la journée est disponible, le changement de signe est la nuit suivante
-      infoEl.innerHTML = '<div class="aw-warn">🌙 Créneau favorable <b>toute la journée</b></div>';
+      // Jour intermédiaire : toute la journée est disponible
+      infoEl.innerHTML = dateLabel + '<div class="aw-warn">🌙 Créneau favorable <b>toute la journée</b></div>';
     }
   }
 }
@@ -4100,7 +4157,7 @@ function dmtSyncMsg(txt, type){
           const jours = joursFin ? joursDebut+' '+joursFin : joursDebut;
           return '<div class="creneau-card" data-idx="'+i+'">'
             +'<div class="creneau-info">'
-            +'<div class="creneau-date">'+dLabel+'</div>'
+            +'<div class="creneau-date'+(sameDay?'':' multiday')+'">'+dLabel+'</div>'
             +'<div class="creneau-meta">'
             +'<span class="creneau-num">🌙↓ '+jours+'</span>'
             +'<span class="creneau-detail">Lune en '+s.sign.name+'</span>'
@@ -4178,6 +4235,114 @@ dmtInit();
 // ══════════════════════════════════════════════════════
 // POTAGER — Familles, rotations, matrice agronomique
 // ══════════════════════════════════════════════════════
+// ── DISTANCES DE PLANTATION (sur le rang / entre les rangs) en cm ──
+// Source : plandejardin-jardinbiologique.com + un-jardin-bio.com
+const POT_DISTANCES = {
+  // Légumes racines
+  'Ail':             {rang:12,  inter:20},
+  'Betterave':       {rang:5,   inter:30},
+  'Carotte':         {rang:4,   inter:30},
+  "Carotte d'hiver": {rang:4,   inter:30},
+  'Navet':           {rang:10,  inter:40},
+  'Oignon':          {rang:8,   inter:30},
+  'Oignon blanc':    {rang:8,   inter:30},
+  'Pomme de terre':  {rang:25,  inter:80},
+  'Radis':           {rang:3,   inter:30},
+  'Radis noir':      {rang:5,   inter:30},
+  'Salsifis':        {rang:10,  inter:45},
+  'Panais':          {rang:25,  inter:45},
+  'Céleri-rave':     {rang:30,  inter:40},
+  'Fenouil':         {rang:25,  inter:40},
+  'Échalote':        {rang:12,  inter:25},
+  'Topinambour':     {rang:40,  inter:80},
+  'Rutabaga':        {rang:20,  inter:40},
+  // Légumes feuilles
+  'Laitue':          {rang:25,  inter:35},
+  'Laitue pommée':   {rang:25,  inter:35},
+  'Laitue batavia':  {rang:25,  inter:35},
+  'Laitue romaine':  {rang:25,  inter:35},
+  "Laitue d'hiver":  {rang:25,  inter:35},
+  'Mâche':           {rang:5,   inter:15},
+  'Épinard':         {rang:10,  inter:40},
+  'Épinard malabar': {rang:15,  inter:40},
+  'Chou':            {rang:40,  inter:60},
+  'Chou rouge':      {rang:40,  inter:60},
+  'Chou de Bruxelles':{rang:50, inter:60},
+  'Chou-fleur':      {rang:8,   inter:30},
+  'Brocoli':         {rang:40,  inter:50},
+  'Poireau':         {rang:15,  inter:20},
+  'Blette':          {rang:15,  inter:45},
+  'Bette à carde':   {rang:15,  inter:45},
+  'Endive':          {rang:25,  inter:45},
+  'Chicorée':        {rang:30,  inter:45},
+  'Chicorée frisée': {rang:30,  inter:45},
+  'Scarole':         {rang:30,  inter:45},
+  'Roquette':        {rang:5,   inter:20},
+  'Cresson':         {rang:5,   inter:15},
+  'Pak-choï':        {rang:20,  inter:30},
+  'Céleri branche':  {rang:25,  inter:40},
+  'Persil':          {rang:5,   inter:20},
+  'Ciboulette':      {rang:10,  inter:20},
+  'Pissenlit':       {rang:15,  inter:25},
+  'Pourpier':        {rang:15,  inter:25},
+  // Légumes fruits
+  'Tomate':          {rang:50,  inter:80},
+  'Tomate cerise':   {rang:40,  inter:70},
+  'Courgette':       {rang:90,  inter:150},
+  'Concombre':       {rang:45,  inter:120},
+  'Cornichon':       {rang:30,  inter:80},
+  'Poivron':         {rang:45,  inter:45},
+  'Aubergine':       {rang:50,  inter:60},
+  'Haricot':         {rang:10,  inter:25},
+  'Pois':            {rang:8,   inter:60},
+  'Petit pois':      {rang:8,   inter:60},
+  'Fève':            {rang:15,  inter:40},
+  'Maïs doux':       {rang:25,  inter:60},
+  'Maïs':            {rang:25,  inter:60},
+  'Potiron':         {rang:120, inter:150},
+  'Courge butternut':{rang:80,  inter:150},
+  'Melon':           {rang:35,  inter:120},
+  'Piment':          {rang:40,  inter:45},
+  'Cyclanthère':     {rang:50,  inter:100},
+  // Fruits
+  'Fraise':          {rang:25,  inter:35},
+  'Fraise des bois': {rang:20,  inter:30},
+  'Framboise':       {rang:50,  inter:150},
+  'Groseille':       {rang:100, inter:150},
+  'Cassis':          {rang:100, inter:150},
+  'Mûre':            {rang:100, inter:200},
+  'Myrtille':        {rang:80,  inter:150},
+  // Aromatiques
+  'Basilic':         {rang:20,  inter:25},
+  'Thym':            {rang:20,  inter:30},
+  'Romarin':         {rang:40,  inter:50},
+  'Coriandre':       {rang:5,   inter:20},
+  'Aneth':           {rang:10,  inter:25},
+  'Menthe':          {rang:30,  inter:40},
+  'Sarriette':       {rang:20,  inter:30},
+  'Origan':          {rang:25,  inter:35},
+  'Mélisse':         {rang:30,  inter:40},
+  'Sauge':           {rang:35,  inter:45},
+  'Estragon':        {rang:30,  inter:40},
+  'Cerfeuil':        {rang:5,   inter:20},
+  'Lavande':         {rang:40,  inter:60},
+  'Camomille':       {rang:10,  inter:25},
+  'Bourrache':       {rang:30,  inter:40},
+  'Livèche':         {rang:50,  inter:60},
+  'Laurier':         {rang:100, inter:150},
+  // Fleurs utiles au potager
+  'Souci':           {rang:20,  inter:30},
+  "Oeillet d'Inde":  {rang:20,  inter:25},
+  'Capucine':        {rang:25,  inter:30},
+  'Tournesol':       {rang:40,  inter:60},
+  'Cosmos':          {rang:25,  inter:35},
+};
+
+// Helper : retourne la distance d'une plante ou null
+function potGetDist(nom){
+  return POT_DISTANCES[nom]||null;
+}
+
 const POT_FAMILLES={
   'Tomate':'solanacees','Tomate cerise':'solanacees','Poivron':'solanacees','Aubergine':'solanacees','Piment':'solanacees','Pomme de terre':'solanacees',
   'Courgette':'cucurbitacees','Concombre':'cucurbitacees','Cornichon':'cucurbitacees','Melon':'cucurbitacees','Potiron':'cucurbitacees','Courge butternut':'cucurbitacees',
@@ -4939,142 +5104,180 @@ function potSetNoms(r,c,yStr,arr){
 }
 
 function potRenderJardin(){
-  const container=document.getElementById('jardin-rangees');if(!container) return;
-  const yStr=String(potYear),prevY=String(potYear-1);
-  const LETTERS='ABCDEFGHIJKL';
-  const containerW=container.offsetWidth||360;
-  // Largeur réelle d'une case — remplit toute la case de plantes
-  const cellW=Math.floor((containerW-22-24)/potCols)-12;
-  // Plante = 14px large, on remplit sans laisser de trou
-  const NB_PLANTS=Math.max(6, Math.min(30, Math.floor(cellW/14)));
+  const container=document.getElementById('jardin-rangees');
+  if(!container) return;
+  const yStr=String(potYear), prevY=String(potYear-1);
+  const LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const PX=0.8;     // 1cm = 0.8px
+  const RANG_H=42;  // hauteur fixe d'un rang (px) — assez pour les boutons
 
-  // ── Génère le rang mélangé en quinconce — serré sur toute la largeur ──
-  function buildRangMix(nom0, nom1, n){
-    let h='<div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:nowrap;width:100%;padding:2px 2px 0;">';
-    for(let i=0;i<n;i++){
-      const nom = (!nom1) ? nom0 : (i%2===0 ? nom0 : nom1);
-      const mt  = (nom1 && i%2!==0) ? '0px' : '5px';
+  // ── Taille visuelle selon distance sur le rang ──
+  function getTaille(nom){
+    const d=potGetDist(nom);
+    if(!d) return 'moyen';
+    if(d.rang<=8)  return 'petit';
+    if(d.rang<=35) return 'moyen';
+    return 'grand';
+  }
+  const NB_PAR_TAILLE={petit:22, moyen:10, grand:3};
+
+  // ── Rang de plantes mélangé, densité inversée ──
+  function buildRangDist(nom0, nom1, containerW){
+    const t0=getTaille(nom0);
+    const t1=nom1?getTaille(nom1):null;
+    const tailles=['petit','moyen','grand'];
+    const tRef=(!nom1)?t0:(tailles.indexOf(t0)>tailles.indexOf(t1)?t0:t1);
+    const nb=NB_PAR_TAILLE[tRef]||10;
+    let h='<div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:nowrap;width:100%;height:'+RANG_H+'px;padding:0 4px;">';
+    for(let i=0;i<nb;i++){
+      const nom=(!nom1)?nom0:(i%2===0?nom0:nom1);
+      const mt=(nom1&&i%2!==0)?'0px':'6px';
       h+='<div style="display:flex;flex-direction:column;align-items:center;margin-top:'+mt+';flex-shrink:0;">'
-        +potGetPlantSvgSmall(nom)
-        +'</div>';
+        +potGetPlantSvgSmall(nom)+'</div>';
     }
-    h+='</div>';
-    return h;
+    return h+'</div>';
   }
 
-  let html='<div style="width:100%;">';
+  // ── Couleur bordure/fond selon statuts ──
+  function getCouleurs(noms,r,c){
+    let bc='rgba(90,150,70,0.4)',bg='rgba(12,26,8,0.65)';
+    let worstAssoc='neutre',worstRot='ok';
+    noms.forEach(n=>{
+      const a=potAssocStatus(r,c,n);
+      const rot2=potRotStatus(r,c,n,potYear);
+      if(a==='bad') worstAssoc='bad'; else if(a==='good'&&worstAssoc==='neutre') worstAssoc='good';
+      if(rot2==='bad') worstRot='bad'; else if(rot2==='warn'&&worstRot==='ok') worstRot='warn';
+    });
+    if(worstAssoc==='bad'||worstRot==='bad'){bc='rgba(220,70,70,0.55)';bg='rgba(65,10,10,0.55)';}
+    else if(worstAssoc==='good'){bc='rgba(74,158,106,0.6)';bg='rgba(8,55,25,0.45)';}
+    else if(worstRot==='warn'){bc='rgba(220,130,30,0.5)';bg='rgba(50,35,5,0.45)';}
+    return {bc,bg};
+  }
+
+  const rotIco=n=>n==='ok'?'<span style="color:#6dea90;font-size:7px;">✓</span>':n==='bad'?'<span style="color:#f08080;font-size:7px;">✕</span>':n==='warn'?'<span style="color:#f0c060;font-size:7px;">⚠</span>':'';
+  const btnStyle='background:none;border:none;color:rgba(200,80,80,0.28);font-size:9px;cursor:pointer;z-index:2;line-height:1;padding:0 3px;';
+  const btnRStyle='background:rgba(200,168,40,0.12);border:1px solid rgba(200,168,40,0.35);border-radius:4px;color:#e0c870;font-size:7px;cursor:pointer;z-index:10;line-height:1;padding:1px 3px;font-family:Cinzel,serif;';
+
+  const containerW=container.offsetWidth||360;
+
+  // ══ Construction rangée par rangée (sens haut→bas) ══
+  let html='<div style="display:flex;flex-direction:column;width:100%;">';
+
   for(let r=0;r<potRows;r++){
-    const parts=[];
+    // ── Rangée de cases ──
+    html+='<div style="display:flex;align-items:stretch;width:100%;">';
+
+    // Label rangée (lettre)
+    html+='<div style="width:22px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:Cinzel,serif;font-size:10px;color:rgba(168,192,96,0.5);">'+LETTERS[r]+'</div>';
+
+    // Zone principale : toutes les cases + infos à droite
+    html+='<div style="flex:1;display:flex;align-items:center;background:#1a0c04;border-radius:8px;padding:4px 6px;border:1px solid rgba(45,20,4,0.9);gap:5px;min-width:0;">';
+
     for(let c=0;c<potCols;c++){
       const noms=potGetNoms(r,c,yStr);
       const prevNoms=potGetNoms(r,c,prevY);
       const prevNom=prevNoms[0]||null;
 
       if(noms.length>0){
-        // Couleur bordure
-        let bc='rgba(90,150,70,0.4)',bg='rgba(12,26,8,0.65)';
-        let worstAssoc='neutre',worstRot='ok';
-        noms.forEach(n=>{
-          const a=potAssocStatus(r,c,n);
-          const rot2=potRotStatus(r,c,n,potYear);
-          if(a==='bad') worstAssoc='bad'; else if(a==='good'&&worstAssoc==='neutre') worstAssoc='good';
-          if(rot2==='bad') worstRot='bad'; else if(rot2==='warn'&&worstRot==='ok') worstRot='warn';
-        });
-        if(worstAssoc==='bad'||worstRot==='bad'){bc='rgba(220,70,70,0.55)';bg='rgba(65,10,10,0.55)';}
-        else if(worstAssoc==='good'){bc='rgba(74,158,106,0.6)';bg='rgba(8,55,25,0.45)';}
-        else if(worstRot==='warn'){bc='rgba(220,130,30,0.5)';bg='rgba(50,35,5,0.45)';}
-
-        // Rang mélangé
-        const rangHtml = buildRangMix(noms[0], noms[1]||null, noms.length===1 ? Math.ceil(NB_PLANTS/2) : NB_PLANTS);
-
-        // Noms + icônes rotation en bas
+        const {bc,bg}=getCouleurs(noms,r,c);
         const rot0=potRotStatus(r,c,noms[0],potYear);
-        const rotIco=n=>n==='ok'?'<span style="color:#6dea90;font-size:7px;">✓</span>':n==='bad'?'<span style="color:#f08080;font-size:7px;">✕</span>':n==='warn'?'<span style="color:#f0c060;font-size:7px;">⚠</span>':'';
-        let nomsHtml;
-        if(noms.length===1){
-          nomsHtml='<div style="font-family:\'Cormorant Garamond\',serif;font-size:9px;font-weight:600;color:#c8dc88;text-align:center;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;padding:0 14px 0 2px;">'
-            +noms[0].substring(0,13)+' '+rotIco(rot0)+'</div>';
-        } else {
-          const rot1=potRotStatus(r,c,noms[1],potYear);
-          nomsHtml='<div style="display:flex;justify-content:space-around;width:100%;margin-top:1px;">'
-            +'<span style="font-size:8px;color:#c8dc88;text-align:center;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 1px;">'+noms[0].substring(0,8)+' '+rotIco(rot0)+'</span>'
-            +'<span style="font-size:8px;color:#c8dc88;text-align:center;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 1px;">'+noms[1].substring(0,8)+' '+rotIco(rot1)+'</span>'
-            +'</div>';
-        }
 
-        // Badge duo (compagnonnage)
-        let duoHtml='';
-        if(noms.length===2){
-          const comp=(typeof compagnons!=='undefined')?compagnons:{};
-          const c1=comp[noms[0]]||{allies:[],enemies:[]};
-          const c2=comp[noms[1]]||{allies:[],enemies:[]};
-          if(c1.enemies.includes(noms[1])||c2.enemies.includes(noms[0])){
-            duoHtml='<div style="font-size:7px;font-family:Cinzel,serif;padding:1px 4px;border-radius:3px;color:#f08060;background:rgba(220,60,40,0.18);white-space:nowrap;">❌ Incompatibles</div>';
-          } else if(c1.allies.includes(noms[1])||c2.allies.includes(noms[0])){
-            duoHtml='<div style="font-size:7px;font-family:Cinzel,serif;padding:1px 4px;border-radius:3px;color:#6dea90;background:rgba(46,180,80,0.18);white-space:nowrap;">🤝 Bonnes compagnes</div>';
-          }
-        }
-
-        // Héritage sol
-        let agroHtml='';
-        if(prevNom){
-          const sc=agroScore(POT_FAMILLES[prevNom],POT_FAMILLES[noms[0]]);
-          const lb=agroLabel(sc);
-          const ac=sc===3?'#6dea90':sc===2?'#c8dc88':sc===0?'#f08060':'#8aaa78';
-          const ab=sc===3?'rgba(46,180,80,0.18)':sc===2?'rgba(140,192,80,0.12)':sc===0?'rgba(220,60,40,0.15)':'rgba(100,120,100,0.1)';
-          agroHtml='<div style="font-size:7px;font-family:Cinzel,serif;padding:1px 4px;border-radius:3px;color:'+ac+';background:'+ab+';white-space:nowrap;">'+lb.txt+'</div>';
-        }
-
-        // Boutons ✕ et ↺ — un par plante
-        const btnStyle='background:none;border:none;color:rgba(200,80,80,0.28);font-size:9px;cursor:pointer;z-index:2;line-height:1;padding:0 3px;';
-        const btnRStyle='background:rgba(200,168,40,0.12);border:1px solid rgba(200,168,40,0.35);border-radius:4px;color:#e0c870;font-size:7px;cursor:pointer;z-index:10;line-height:1;padding:1px 3px;font-family:Cinzel,serif;';
+        // Boutons
         let btnsHtml;
         if(noms.length===1){
           btnsHtml='<button onclick="event.stopPropagation();potRemoveOne('+r+','+c+',0)" style="position:absolute;top:2px;right:2px;'+btnStyle+'" onmouseover="this.style.color=\'#e07070\'" onmouseout="this.style.color=\'rgba(200,80,80,0.28)\'">✕</button>'
-            +'<button onclick="event.stopPropagation();potRemplacer('+r+','+c+',0)" title="Remplacer" style="position:absolute;bottom:2px;right:2px;'+btnRStyle+'" onmouseover="this.style.background=\'rgba(200,168,40,0.3)\'" onmouseout="this.style.background=\'rgba(200,168,40,0.12)\'">↺</button>';
+            +'<button onclick="event.stopPropagation();potRemplacer('+r+','+c+',0)" style="position:absolute;bottom:2px;right:2px;'+btnRStyle+'" onmouseover="this.style.background=\'rgba(200,168,40,0.3)\'" onmouseout="this.style.background=\'rgba(200,168,40,0.12)\'">↺</button>';
         } else {
-          btnsHtml='<button onclick="event.stopPropagation();potRemoveOne('+r+','+c+',0)" title="Retirer '+noms[0]+'" style="position:absolute;top:2px;left:2px;'+btnStyle+'" onmouseover="this.style.color=\'#e07070\'" onmouseout="this.style.color=\'rgba(200,80,80,0.28)\'">✕</button>'
-            +'<button onclick="event.stopPropagation();potRemoveOne('+r+','+c+',1)" title="Retirer '+noms[1]+'" style="position:absolute;top:2px;right:2px;'+btnStyle+'" onmouseover="this.style.color=\'#e07070\'" onmouseout="this.style.color=\'rgba(200,80,80,0.28)\'">✕</button>'
-            +'<button onclick="event.stopPropagation();potRemplacer('+r+','+c+',0)" title="Remplacer '+noms[0]+'" style="position:absolute;bottom:2px;left:2px;'+btnRStyle+'" onmouseover="this.style.background=\'rgba(200,168,40,0.3)\'" onmouseout="this.style.background=\'rgba(200,168,40,0.12)\'">↺</button>'
-            +'<button onclick="event.stopPropagation();potRemplacer('+r+','+c+',1)" title="Remplacer '+noms[1]+'" style="position:absolute;bottom:2px;right:2px;'+btnRStyle+'" onmouseover="this.style.background=\'rgba(200,168,40,0.3)\'" onmouseout="this.style.background=\'rgba(200,168,40,0.12)\'">↺</button>';
+          btnsHtml='<button onclick="event.stopPropagation();potRemoveOne('+r+','+c+',0)" title="'+noms[0]+'" style="position:absolute;top:2px;left:2px;'+btnStyle+'" onmouseover="this.style.color=\'#e07070\'" onmouseout="this.style.color=\'rgba(200,80,80,0.28)\'">✕</button>'
+            +'<button onclick="event.stopPropagation();potRemoveOne('+r+','+c+',1)" title="'+noms[1]+'" style="position:absolute;top:2px;right:2px;'+btnStyle+'" onmouseover="this.style.color=\'#e07070\'" onmouseout="this.style.color=\'rgba(200,80,80,0.28)\'">✕</button>'
+            +'<button onclick="event.stopPropagation();potRemplacer('+r+','+c+',0)" style="position:absolute;bottom:2px;left:2px;'+btnRStyle+'" onmouseover="this.style.background=\'rgba(200,168,40,0.3)\'" onmouseout="this.style.background=\'rgba(200,168,40,0.12)\'">↺</button>'
+            +'<button onclick="event.stopPropagation();potRemplacer('+r+','+c+',1)" style="position:absolute;bottom:2px;right:2px;'+btnRStyle+'" onmouseover="this.style.background=\'rgba(200,168,40,0.3)\'" onmouseout="this.style.background=\'rgba(200,168,40,0.12)\'">↺</button>';
         }
 
-        parts.push(
-          '<div style="flex:1;display:flex;flex-direction:column;align-items:center;background:'+bg+';border:1.5px solid '+bc+';border-radius:7px;padding:4px 2px 4px;cursor:pointer;position:relative;min-width:0;overflow:hidden;" onclick="potCellTap('+r+','+c+')">'
+        html+='<div style="flex:1;position:relative;background:'+bg+';border:1.5px solid '+bc+';border-radius:6px;overflow:hidden;cursor:pointer;min-height:'+RANG_H+'px;" onclick="potCellTap('+r+','+c+')" onmouseover="this.style.borderColor=\'rgba(180,220,100,0.7)\'" onmouseout="this.style.borderColor=\''+bc+'\'">'
           +btnsHtml
-          +rangHtml
-          +nomsHtml
-          +duoHtml
-          +agroHtml
-          +'</div>'
-        );
+          +buildRangDist(noms[0],noms[1]||null,containerW)
+          +'</div>';
 
       } else if(prevNom){
-        parts.push(
-          '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,22,8,0.3);border:1.5px dashed rgba(90,140,70,0.13);border-radius:7px;padding:4px 2px;cursor:pointer;min-width:0;" onclick="potCellTap('+r+','+c+')" onmouseover="this.style.borderColor=\'rgba(168,192,96,0.4)\'" onmouseout="this.style.borderColor=\'rgba(90,140,70,0.13)\'">'
-          +'<div style="opacity:.18;pointer-events:none;">'+potGetPlantSvg(prevNom)+'</div>'
-          +'<div style="font-size:8px;color:rgba(168,192,96,0.3);font-family:Cinzel,serif;text-align:center;line-height:1.3;margin-top:2px;">'+prevY.slice(2)+':'+prevNom.substring(0,8)+'<br><span style="font-size:7px;opacity:.6;">↓ placer</span></div>'
-          +'</div>'
-        );
+        html+='<div style="flex:1;height:'+RANG_H+'px;display:flex;align-items:center;justify-content:center;background:rgba(10,22,8,0.3);border:1.5px dashed rgba(90,140,70,0.13);border-radius:6px;cursor:pointer;overflow:hidden;" onclick="potCellTap('+r+','+c+')" onmouseover="this.style.borderColor=\'rgba(168,192,96,0.4)\'" onmouseout="this.style.borderColor=\'rgba(90,140,70,0.13)\'">'
+          +'<div style="opacity:.18;pointer-events:none;transform:scale(0.6);">'+potGetPlantSvg(prevNom)+'</div>'
+          +'</div>';
       } else {
-        parts.push(
-          '<div style="flex:1;display:flex;align-items:center;justify-content:center;background:rgba(10,22,8,0.15);border:1.5px dashed rgba(90,140,70,0.06);border-radius:7px;cursor:pointer;min-width:0;min-height:62px;" onclick="potCellTap('+r+','+c+')" onmouseover="this.style.borderColor=\'rgba(168,192,96,0.3)\'" onmouseout="this.style.borderColor=\'rgba(90,140,70,0.06)\'">'
-          +'<div style="color:rgba(140,160,120,0.14);font-family:Cinzel,serif;font-size:10px;">'+LETTERS[r]+(c+1)+'</div>'
-          +'</div>'
-        );
+        html+='<div style="flex:1;height:'+RANG_H+'px;display:flex;align-items:center;justify-content:center;background:rgba(10,22,8,0.15);border:1.5px dashed rgba(90,140,70,0.06);border-radius:6px;cursor:pointer;" onclick="potCellTap('+r+','+c+')" onmouseover="this.style.borderColor=\'rgba(168,192,96,0.3)\'" onmouseout="this.style.borderColor=\'rgba(90,140,70,0.06)\'">'
+          +'<div style="color:rgba(140,160,120,0.12);font-family:Cinzel,serif;font-size:9px;">'+LETTERS[r]+(c+1)+'</div>'
+          +'</div>';
       }
     }
-    html+='<div style="display:flex;align-items:stretch;margin-bottom:8px;">';
-    html+='<div style="width:22px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:Cinzel,serif;font-size:10px;color:rgba(168,192,96,0.5);">'+LETTERS[r]+'</div>';
-    html+='<div style="flex:1;display:flex;gap:5px;background:#1a0c04;border-radius:8px;padding:6px;border:1px solid rgba(45,20,4,0.9);">';
-    html+=parts.join('');
-    html+='</div></div>';
+
+    // ── Infos à droite de la rangée (nom + distances de la 1ère case non vide) ──
+    const firstNoms=potGetNoms(r,0,yStr);
+    const nom0=firstNoms[0]||null;
+    const d=nom0?potGetDist(nom0):null;
+    const rot0=nom0?potRotStatus(r,0,nom0,potYear):null;
+
+    // Badge duo (1ère case)
+    let duoBadge='';
+    if(firstNoms.length===2){
+      const comp=(typeof compagnons!=='undefined')?compagnons:{};
+      const c1=comp[firstNoms[0]]||{allies:[],enemies:[]};
+      const c2=comp[firstNoms[1]]||{allies:[],enemies:[]};
+      if(c1.enemies.includes(firstNoms[1])||c2.enemies.includes(firstNoms[0])){
+        duoBadge='<div style="font-size:6px;font-family:Cinzel,serif;color:#f08060;">❌ Incompatibles</div>';
+      } else if(c1.allies.includes(firstNoms[1])||c2.allies.includes(firstNoms[0])){
+        duoBadge='<div style="font-size:6px;font-family:Cinzel,serif;color:#6dea90;">🤝 Bonnes compagnes</div>';
+      }
+    }
+
+    // Héritage sol
+    let agroBadge='';
+    const prevNom0=(potGetNoms(r,0,prevY))[0]||null;
+    if(nom0&&prevNom0){
+      const sc=agroScore(POT_FAMILLES[prevNom0],POT_FAMILLES[nom0]);
+      const lb=agroLabel(sc);
+      const ac=sc===3?'#6dea90':sc===2?'#c8dc88':sc===0?'#f08060':'#8aaa78';
+      agroBadge='<div style="font-size:6px;font-family:Cinzel,serif;color:'+ac+';">'+lb.txt+'</div>';
+    }
+
+    html+='<div style="width:140px;flex-shrink:0;padding-left:10px;display:flex;flex-direction:column;justify-content:center;gap:1px;">'
+      +(nom0?'<div style="font-size:9px;font-weight:600;color:#c8dc88;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(nom0?potGetPlantEmoji(nom0)+' ':'')+nom0+(firstNoms[1]?' + '+firstNoms[1]:'')+(rot0?' '+rotIco(rot0):'')+'</div>':'')
+      +(d?'<div style="font-size:7px;font-family:Cinzel,serif;color:rgba(210,235,160,0.85);white-space:nowrap;">↔ '+d.rang+' cm · ↕ '+d.inter+' cm entre rangs</div>':'')
+      +duoBadge+agroBadge
+      +'</div>';
+
+    html+='</div></div>'; // fin zone principale + rangée
+
+    // ── Espace entre rangs (proportionnel) ──
+    if(r < potRows-1){
+      // Distance de la case [r,0] et [r+1,0]
+      const nomCur=(potGetNoms(r,0,yStr)[0])||null;
+      const nomNext=(potGetNoms(r+1,0,yStr)[0])||null;
+      const dCur=nomCur?potGetDist(nomCur):null;
+      const dNext=nomNext?potGetDist(nomNext):null;
+      let espaceCm=25;
+      if(dCur&&dNext) espaceCm=Math.round((dCur.inter+dNext.inter)/2);
+      else if(dCur)   espaceCm=Math.round(dCur.inter/2);
+      else if(dNext)  espaceCm=Math.round(dNext.inter/2);
+      const espacePx=Math.max(8, Math.round(espaceCm*PX));
+
+      html+='<div style="display:flex;align-items:stretch;">'
+        +'<div style="width:22px;flex-shrink:0;"></div>'
+        +'<div style="flex:1;position:relative;height:'+espacePx+'px;">'
+          +'<div style="position:absolute;left:0;right:0;top:50%;border-top:1px dashed rgba(140,192,80,0.08);"></div>'
+          +'<div style="position:absolute;left:8px;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">'
+            +'<div style="width:1px;flex:1;background:rgba(140,192,80,0.2);"></div>'
+            +'<div style="font-size:6px;font-family:Cinzel,serif;color:rgba(180,230,120,0.9);padding:1px 3px;background:rgba(12,26,8,0.95);border-radius:2px;white-space:nowrap;">'+espaceCm+' cm</div>'
+            +'<div style="width:1px;flex:1;background:rgba(140,192,80,0.2);"></div>'
+          +'</div>'
+        +'</div>'
+        +'<div style="width:140px;flex-shrink:0;"></div>'
+        +'</div>';
+    }
   }
+
   html+='</div>';
   container.innerHTML=html;
 }
-
-
 
 function potShowRotBanner(){
   const banner=document.getElementById('pot-rot-banner');if(!banner) return;
@@ -5196,7 +5399,12 @@ function potBuildPalette(){
 
   // Mois actuel pour filtrage saisonnier
   const moisNow = new Date().getMonth()+1;
-  const MOIS_GEL_PAL = 10;
+  // Mois limite gel selon zone climatique (1-based) : après ce mois, plus de risque gel
+  const MOIS_GEL_PAL_ZONE = { montagne:5, froide:5, temperee:4, douce:3 };
+  const MOIS_GEL_PAL = MOIS_GEL_PAL_ZONE[climateZone] || 4;
+  // Mois avant gelées automnales (fin de saison)
+  const MOIS_FIN_ZONE = { montagne:9, froide:10, temperee:11, douce:12 };
+  const MOIS_FIN_PAL = MOIS_FIN_ZONE[climateZone] || 10;
 
   // Calculer la faisabilité de chaque plante
   function palFaisabilite(nom){
@@ -5208,11 +5416,15 @@ function potBuildPalette(){
     const [a,b]=semis;
     const enSaison=a<=b?(moisNow>=a&&moisNow<=b):(moisNow>=a||moisNow<=b);
     if(!enSaison) return {ok:false, raison:'hors_saison'};
+    // Bloquer les plantes gélives si on est encore en période de gel
+    if(moisNow <= MOIS_GEL_PAL && GELIVES_GLOBAL.includes(nom)){
+      return {ok:false, raison:'risque_gel'};
+    }
     const duree=p.duree_culture||12;
     if(duree===0) return {ok:true, raison:'taille'};
     const moisRecolte=moisNow+Math.round(duree/4.3);
     if(moisRecolte>12) return {ok:false, raison:'trop_tard', moisRecolte};
-    if(moisRecolte>=MOIS_GEL_PAL) return {ok:'limite', raison:'limite_gel', moisRecolte};
+    if(moisRecolte>=MOIS_FIN_PAL) return {ok:'limite', raison:'limite_gel', moisRecolte};
     return {ok:true, moisRecolte};
   }
 
@@ -5228,9 +5440,10 @@ function potBuildPalette(){
   const MOIS_NOM_PAL=['','Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
 
   function makeCard(nom, f, dim){
-    const ic=typeof PI!=='undefined'&&PI[nom]?'<span style="display:inline-flex;align-items:center">'+PI[nom]+'</span>':'';
+    const ic='<span style="display:inline-flex;align-items:center;margin-right:2px;">'+potGetPlantSvgSmall(nom)+'</span>';
     const style=dim?'opacity:.35;filter:grayscale(.6);':'';
     const title=f.ok===false&&f.raison==='hors_saison'?'Hors saison de semis':
+                f.ok===false&&f.raison==='risque_gel'?'Risque de gel — zone '+climateZone+' (attendre mai)':
                 f.ok===false&&f.raison==='trop_tard'?'Récolte trop tardive avant gel':
                 f.ok==='limite'?'⚠ Récolte ~'+MOIS_NOM_PAL[Math.min(12,f.moisRecolte||12)]+' (limite gel)':'';
     const badge=f.ok==='limite'?'<span style="font-size:.45rem;background:rgba(220,130,30,.2);color:#f0c060;border-radius:3px;padding:0 3px;">⚠</span>':
