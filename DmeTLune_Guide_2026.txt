@@ -1,3 +1,4 @@
 Le fichier guide se trouve maintenant dans l'application, il est représenté par 
 un point d'interrogation en bas à droite de votre écran. 
 Si toutefois vous remarquez des bugs, merci de me les signaler à : bp@cdepac.fr
+Vous trouverez également le fichier .apk et si toutefois vous voulez l'installer sous Windows envoyez-moi un mail et ce sera avec plaisir que je vous le ferai parvenir.
