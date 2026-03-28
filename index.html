@@ -597,18 +597,17 @@
     </style>
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&amp;family=Cormorant+Garamond:wght@300;400;500&amp;family=Cinzel:wght@400;600&amp;display=swap" as="style" crossorigin>
 
-
-
-
-
-
-
-
-
 </head>
-<body>
+      input.style.borderColor = 'rgba(220,80,60,0.6)';
+      setTimeout(function(){ input.style.borderColor = 'rgba(140,192,80,0.3)'; }, 1500);
+    }
+  };
+})();
+</script>
 
-<!-- ══ PROTECTION MOT DE PASSE ══ -->
+<div id="bg-layer"></div><body>
+
+
 <div id="dmt-lock-overlay" style="
   position:fixed;inset:0;z-index:99999;
   background:linear-gradient(160deg,rgba(2,8,4,0.98),rgba(5,15,8,0.99));
@@ -626,7 +625,7 @@
     <div style="font-family:'Cinzel',serif;font-size:1.1rem;letter-spacing:.14em;color:#c8e070;text-transform:uppercase;margin-bottom:4px;">DméTLune</div>
     <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.95rem;color:rgba(200,220,136,0.6);margin-bottom:24px;">Accès protégé</div>
     <input id="dmt-lock-input" type="password"
-      placeholder="Mot de passe"
+      placeholder="......"
       onkeydown="if(event.key==='Enter') dmtCheckPassword()"
       style="
         width:100%;padding:10px 14px;border-radius:10px;
@@ -686,20 +685,9 @@
       errEl.textContent = 'Mot de passe incorrect.';
       const input = document.getElementById('dmt-lock-input');
       input.value = '';
-      input.style.borderColor = 'rgba(220,80,60,0.6)';
-      setTimeout(function(){ input.style.borderColor = 'rgba(140,192,80,0.3)'; }, 1500);
-    }
-  };
-})();
-</script>
 
-<div id="bg-layer"></div>
 <div id="stars"></div>
 <div id="bg-overlay"></div>
-
-
-
-
 
 
 
@@ -975,11 +963,11 @@
 </div>
 <!-- ── PANEL REPORTER (unique, position:fixed) ── -->
 <div id="pb-reporter-panel">
-  <div class="pb-reporter-title">
-    <span>🌙 Choisissez une nouvelle date</span>
-    <button class="pb-reporter-close" onclick="pbReporterClose()">✕</button>
-  </div>
-  <div id="pb-reporter-slots"></div>
+    <div class="pb-reporter-title">
+        <span>🌙 Choisissez une nouvelle date</span>
+        <button class="pb-reporter-close" onclick="pbReporterClose()">✕</button>
+    </div>
+    <div id="pb-reporter-slots"></div>
 </div>
 
 <div class="pensebete-block">
@@ -6638,12 +6626,17 @@ potFullReset = function(){
       backdrop-filter:blur(4px);
       -webkit-backdrop-filter:blur(4px);
       overflow:hidden;
+      /* Respecter les zones sûres (notch / barre de navigation) */
+      padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);
+      box-sizing:border-box;
     }
     #guideModalInner {
       position:absolute;top:50%;left:50%;
       transform:translate(-50%,-50%);
       width:min(92vw,860px);
-      height:min(90vh,900px);
+      max-width:calc(100vw - 2 * env(safe-area-inset-right, 0px) - 16px);
+      height:min(88vh,900px);
+      max-height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 24px);
       background:#0d1a0d;
       border-radius:16px;
       overflow:hidden;
@@ -6884,6 +6877,9 @@ potFullReset = function(){
             .dmt-screenshot-wrap {
                 margin: 24px 0;
                 text-align: center;
+                /* Empêche le débordement horizontal sur mobile */
+                overflow: hidden;
+                max-width: 100%;
             }
             .dmt-screenshot-label {
                 display: inline-block;
@@ -6895,6 +6891,8 @@ potFullReset = function(){
                 border: 1px solid rgba(140,192,80,0.25);
                 border-radius: 4px;
                 padding: 3px 10px;
+                max-width: 100%;
+                box-sizing: border-box;
             }
             .dmt-phone {
                 display: inline-block;
@@ -6903,6 +6901,9 @@ potFullReset = function(){
                 padding: 14px 10px;
                 box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 0 0 2px #333;
                 position: relative;
+                /* Mise à l'échelle automatique sur petits écrans */
+                max-width: calc(100vw - 48px);
+                overflow: hidden;
             }
             .dmt-phone::before {
                 content: '';
@@ -6923,12 +6924,14 @@ potFullReset = function(){
             }
             .dmt-screen {
                 width: 320px;
+                max-width: calc(100vw - 68px);
                 border-radius: 22px;
                 overflow: hidden;
                 font-family: 'Segoe UI', sans-serif;
                 background: #0a1408;
                 color: #f5f8ee;
                 position: relative;
+                box-sizing: border-box;
             }
             .dmt-statusbar {
                 background: rgba(5,15,5,0.95);
@@ -7616,7 +7619,9 @@ potFullReset = function(){
 
     /* Floating help button */
     #guideFloatBtn {
-      position:fixed;bottom:22px;right:18px;z-index:8999;
+      position:fixed;
+      bottom:calc(env(safe-area-inset-bottom, 0px) + 22px);
+      right:18px;z-index:8999;
       width:46px;height:46px;border-radius:50%;
       background:linear-gradient(135deg,#2d5a1b,#3d7a25);
       border:1.5px solid rgba(200,224,112,0.55);
@@ -7635,7 +7640,7 @@ potFullReset = function(){
 </style>
 
 <!-- Floating button -->
-<button id="guideFloatBtn" onclick="document.getElementById('guideModal').style.display='flex'" title="Guide utilisateur" style="position:fixed!important;bottom:22px!important;right:18px!important;z-index:9998!important;width:46px!important;height:46px!important;border-radius:50%!important;background:linear-gradient(135deg,#2d5a1b,#3d7a25)!important;border:2px solid #c8e070!important;color:#c8e070!important;font-size:1.3rem!important;font-weight:700!important;cursor:pointer!important;display:flex!important;align-items:center!important;justify-content:center!important;">?</button>
+<button id="guideFloatBtn" onclick="document.getElementById('guideModal').style.display='flex'" title="Guide utilisateur" style="position:fixed!important;bottom:calc(env(safe-area-inset-bottom,0px) + 22px)!important;right:18px!important;z-index:9998!important;width:46px!important;height:46px!important;border-radius:50%!important;background:linear-gradient(135deg,#2d5a1b,#3d7a25)!important;border:2px solid #c8e070!important;color:#c8e070!important;font-size:1.3rem!important;font-weight:700!important;cursor:pointer!important;display:flex!important;align-items:center!important;justify-content:center!important;">?</button>
 
 <!-- Guide modal -->
 <div id="guideModal" onclick="if(event.target===this)this.style.display='none'">
@@ -9682,6 +9687,7 @@ potFullReset = function(){
         </div>
     </div>
 </div>
+
 
 </body>
 </html>
