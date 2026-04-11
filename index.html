@@ -10,7 +10,7 @@
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
         font-src https://fonts.gstatic.com;
         img-src 'self' data: https://i.imgur.com;
-        connect-src https://api.open-meteo.com https://nominatim.openstreetmap.org https://calendar.google.com https://apis.google.com https://www.google.com;
+        connect-src https://api.open-meteo.com https://archive-api.open-meteo.com https://nominatim.openstreetmap.org https://calendar.google.com https://apis.google.com https://www.google.com;
         frame-ancestors 'none';
         base-uri 'self';
         form-action 'none';
@@ -110,7 +110,7 @@
           backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
           border:1px solid rgba(140,192,80,0.25);border-radius:20px;padding:18px 14px 12px;
           display:flex;flex-direction:column;align-items:center;justify-content:center;
-          box-shadow:0 4px 24px rgba(0,0,0,0.5);overflow:hidden;
+          box-shadow:0 4px 24px rgba(0,0,0,0.5);overflow:visible;
           position:relative;
         }
         #skyCanvas{
@@ -119,8 +119,8 @@
         }
         .moon-svg-wrap{position:relative;z-index:2;}
         .phase-name{position:relative;z-index:2;}
-        .moon-svg-wrap{position:relative;width:320px;height:320px;margin-bottom:6px;flex-shrink:0;}
-        .moon-svg-wrap svg#constellSvg{position:absolute;top:0;left:0;width:320px;height:320px;z-index:1;pointer-events:none;}
+        .moon-svg-wrap{position:relative;width:min(320px,calc(100vw - 80px));height:min(320px,calc(100vw - 80px));margin-bottom:6px;flex-shrink:0;}
+        .moon-svg-wrap svg#constellSvg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none;}
         .moon-svg-wrap svg#moonSvg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;filter:drop-shadow(0 0 20px rgba(140,192,80,.5));}
         .sign-info-bar{
           width:100%;
@@ -597,16 +597,16 @@
     </style>
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&amp;family=Cormorant+Garamond:wght@300;400;500&amp;family=Cinzel:wght@400;600&amp;display=swap" as="style" crossorigin>
 
+
+
+
+
+
+
+
+
 </head>
-      input.style.borderColor = 'rgba(220,80,60,0.6)';
-      setTimeout(function(){ input.style.borderColor = 'rgba(140,192,80,0.3)'; }, 1500);
-    }
-  };
-})();
-</script>
-
-<div id="bg-layer"></div><body>
-
+<body>
 
 <div id="dmt-lock-overlay" style="
   position:fixed;inset:0;z-index:99999;
@@ -660,7 +660,6 @@
   const HASH = '54a44bda0a281900d1b5074b40172eed2834d25342e4679e6ee066ad1d7cdcac';
   const SESSION_KEY = 'dmt_auth';
 
-  // Si déjà authentifié dans la session
   if(sessionStorage.getItem(SESSION_KEY) === '1'){
     document.getElementById('dmt-lock-overlay').style.display = 'none';
     return;
@@ -685,9 +684,20 @@
       errEl.textContent = 'Mot de passe incorrect.';
       const input = document.getElementById('dmt-lock-input');
       input.value = '';
+      input.style.borderColor = 'rgba(220,80,60,0.6)';
+      setTimeout(function(){ input.style.borderColor = 'rgba(140,192,80,0.3)'; }, 1500);
+    }
+  };
+})();
+</script>
 
+<div id="bg-layer"></div>
 <div id="stars"></div>
 <div id="bg-overlay"></div>
+
+
+
+
 
 
 
@@ -712,7 +722,7 @@
     </header>
 
     <!-- Bouton Mon Jardin entre les deux cadres -->
-    <div style="text-align:center;margin:20px 0 20px;position:relative;z-index:3;">
+    <div style="text-align:center;margin:20px 0 20px;position:relative;z-index:3;display:flex;justify-content:center;gap:14px;flex-wrap:wrap;">
         <button onclick="ouvrirJardin()" style="
         display:inline-flex;align-items:center;gap:10px;
         padding:13px 32px;
@@ -730,6 +740,24 @@
                 onmouseup="this.style.transform='';this.style.boxShadow='0 6px 0 #1e4a08,0 8px 18px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.25)'"
                 onmouseleave="this.style.transform='';this.style.boxShadow='0 6px 0 #1e4a08,0 8px 18px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.25)'">
             🥕 Mon Jardin
+        </button>
+        <button onclick="ouvrirArrosage()" style="
+        display:inline-flex;align-items:center;gap:10px;
+        padding:13px 32px;
+        border-radius:12px;
+        border:none;
+        background:linear-gradient(180deg,#4090c0 0%,#2a6a9a 40%,#1a4e7a 100%);
+        box-shadow:0 6px 0 #0e2e50, 0 8px 18px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.25);
+        color:#d0f0ff;
+        cursor:pointer;
+        font-family:'Cinzel',serif;font-size:.88rem;letter-spacing:.14em;text-transform:uppercase;
+        transition:all .12s;
+        text-shadow:0 1px 2px rgba(0,0,0,0.4);
+      "
+                onmousedown="this.style.transform='translateY(4px)';this.style.boxShadow='0 2px 0 #0e2e50,0 4px 8px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.15)'"
+                onmouseup="this.style.transform='';this.style.boxShadow='0 6px 0 #0e2e50,0 8px 18px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.25)'"
+                onmouseleave="this.style.transform='';this.style.boxShadow='0 6px 0 #0e2e50,0 8px 18px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.25)'">
+            💧 Arrosage
         </button>
     </div>
 
@@ -766,7 +794,38 @@
     </div>
 
     <div class="meteo-block">
-        <div class="meteo-loc" id="meteoLoc">📍 Localisation en cours…</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <div class="meteo-loc" id="meteoLoc" style="flex:1;min-width:0;">📍 Localisation en cours…</div>
+            <button id="meteoEditBtn" onclick="meteoToggleEdit()" title="Saisir ma ville manuellement"
+                    style="flex-shrink:0;background:rgba(140,192,80,0.1);border:1px solid rgba(140,192,80,0.35);
+                border-radius:7px;color:#c8e070;cursor:pointer;font-size:.75rem;padding:3px 9px;
+                font-family:'Cinzel',serif;letter-spacing:.06em;transition:all .2s;white-space:nowrap;">
+                ✏️ Ma ville
+            </button>
+        </div>
+        <!-- Saisie manuelle de la ville -->
+        <div id="meteoManualWrap" style="display:none;margin-top:8px;">
+            <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap;">
+                <input id="meteoManualInput" type="text" placeholder="Nancy"
+                       style="flex:1;min-width:140px;background:rgba(8,14,32,0.75);border:1px solid rgba(140,192,80,0.4);
+                    border-radius:8px;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:1rem;
+                    padding:7px 12px;outline:none;box-sizing:border-box;"
+                       onkeydown="if(event.key==='Enter')meteoManualSearch()">
+                <button onclick="meteoManualSearch()"
+                        style="background:rgba(140,192,80,0.18);border:1px solid rgba(140,192,80,0.5);
+                    border-radius:8px;color:#c8e070;cursor:pointer;font-family:'Cinzel',serif;
+                    font-size:.75rem;letter-spacing:.08em;padding:7px 14px;transition:all .2s;white-space:nowrap;">
+                    🔍 Valider
+                </button>
+                <button onclick="meteoManualCancel()"
+                        style="background:rgba(200,80,60,0.1);border:1px solid rgba(200,80,60,0.3);
+                    border-radius:8px;color:#e08080;cursor:pointer;font-family:'Cinzel',serif;
+                    font-size:.75rem;letter-spacing:.08em;padding:7px 10px;transition:all .2s;">
+                    ✕
+                </button>
+            </div>
+            <div id="meteoManualMsg" style="font-size:.82rem;color:var(--muted);font-style:italic;margin-top:5px;"></div>
+        </div>
         <div id="meteoLoader" style="color:var(--muted);font-style:italic;font-size:.9rem;">Chargement de la météo…</div>
         <div id="meteoContent" style="display:none">
             <div class="meteo-row">
@@ -1155,15 +1214,15 @@
       {nom:"Chou-fleur",     type:"legume",    jour:"fleur",  semis:[3,4],   recolte:[7,10],duree_culture:16},
       {nom:"Artichaut",      type:"legume",    jour:"fleur",  semis:[3,4],   recolte:[6,9],duree_culture:52},
       // LÉGUMES fruit
-      {nom:"Tomate",         type:"legume",    jour:"fruit",  semis:[2,3],   recolte:[7,10],duree_culture:16},
-      {nom:"Tomate cerise",  type:"legume",    jour:"fruit",  semis:[2,3],   recolte:[7,9],duree_culture:16},
+      {nom:"Tomate",         type:"legume",    jour:"fruit",  semis:[2,3],   recolte:[8,10],duree_culture:16},
+      {nom:"Tomate cerise",  type:"legume",    jour:"fruit",  semis:[2,3],   recolte:[8,9],duree_culture:16},
       {nom:"Courgette",      type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[6,9],duree_culture:10},
       {nom:"Concombre",      type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[7,9],duree_culture:10},
           {nom:"Cornichon",       type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[7,9],duree_culture:10},
       {nom:"Poivron",        type:"legume",    jour:"fruit",  semis:[2,3],   recolte:[8,10],duree_culture:18},
       {nom:"Aubergine",      type:"legume",    jour:"fruit",  semis:[2,3],   recolte:[7,10],duree_culture:18},
       {nom:"Haricot",        type:"legume",    jour:"fruit",  semis:[5,7],   recolte:[7,10],duree_culture:10},
-      {nom:"Pois",           type:"legume",    jour:"fruit",  semis:[3,5],   recolte:[5,7],duree_culture:12},
+      {nom:"Pois",           type:"legume",    jour:"fruit",  semis:[3,5],   recolte:[6,7],duree_culture:12},
       {nom:"Fève",           type:"legume",    jour:"fruit",  semis:[10,12], recolte:[5,6],duree_culture:20},
       {nom:"Maïs doux",      type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[8,9],duree_culture:14},
       {nom:"Potiron",        type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[9,10],duree_culture:20},
@@ -1171,8 +1230,8 @@
       {nom:"Melon",          type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[7,9],duree_culture:14},
       {nom:"Piment",         type:"legume",    jour:"fruit",  semis:[2,3],   recolte:[8,10],duree_culture:18},
       // FRUITS
-      {nom:"Fraise",         type:"fruit",     jour:"fruit",  plantation:[3,4],   recolte:[5,7],duree_culture:16},
-      {nom:"Fraise des bois",type:"fruit",     jour:"fruit",  semis:[3,5],   recolte:[5,8],duree_culture:16},
+      {nom:"Fraise",         type:"fruit",     jour:"fruit",  plantation:[3,4],   recolte:[6,7],duree_culture:16},
+      {nom:"Fraise des bois",type:"fruit",     jour:"fruit",  semis:[3,5],   recolte:[6,8],duree_culture:16},
       {nom:"Framboise",      type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[6,9],duree_culture:52},
       {nom:"Groseille",      type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[6,8],duree_culture:52},
       {nom:"Cassis",         type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[7,8],duree_culture:52},
@@ -1188,13 +1247,13 @@
       {nom:"Poire",          type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[8,10],duree_culture:104},
       {nom:"Noisette",       type:"fruit",     jour:"fruit",  plantation:[10,12], recolte:[9,10],duree_culture:104},
       // AROMATIQUES
-      {nom:"Persil",         type:"aromatique",jour:"feuille",semis:[3,8],   recolte:[5,10],duree_culture:12},
+      {nom:"Persil",         type:"aromatique",jour:"feuille",semis:[3,8],   recolte:[6,10],duree_culture:12},
       {nom:"Basilic",        type:"aromatique",jour:"feuille",semis:[4,6],   recolte:[6,9],duree_culture:10},
       {nom:"Thym",           type:"aromatique",jour:"feuille",semis:[3,5],   recolte:[5,10],duree_culture:16},
       {nom:"Romarin",        type:"aromatique",jour:"feuille",semis:[3,5],   recolte:[4,10],duree_culture:20},
       {nom:"Ciboulette",     type:"aromatique",jour:"feuille",semis:[3,6],   recolte:[4,9],duree_culture:12},
       {nom:"Menthe",         type:"aromatique",jour:"feuille",plantation:[4,6],   recolte:[5,9],duree_culture:12},
-      {nom:"Coriandre",      type:"aromatique",jour:"feuille",semis:[3,9],   recolte:[4,10],duree_culture:8},
+      {nom:"Coriandre",      type:"aromatique",jour:"feuille",semis:[3,9],   recolte:[5,10],duree_culture:8},
       {nom:"Estragon",       type:"aromatique",jour:"feuille",plantation:[3,5],   recolte:[5,9],duree_culture:14},
       {nom:"Aneth",          type:"aromatique",jour:"feuille",semis:[4,7],   recolte:[6,9],duree_culture:8},
       {nom:"Sarriette",      type:"aromatique",jour:"feuille",semis:[4,6],   recolte:[6,9],duree_culture:12},
@@ -1209,7 +1268,7 @@
       // FLEURS
       {nom:"Rose",           type:"fleur",     jour:"fleur",  plantation:[10,3],  recolte:[5,10],duree_culture:52},
       {nom:"Pivoine",        type:"fleur",     jour:"fleur",  plantation:[9,11],  recolte:[5,6],duree_culture:52},
-      {nom:"Dahlia",         type:"fleur",     jour:"fleur",  plantation:[3,4],   recolte:[7,10],duree_culture:20},
+      {nom:"Dahlia",         type:"fleur",     jour:"fleur",  plantation:[3,4],   recolte:[8,10],duree_culture:20},
       {nom:"Tournesol",      type:"fleur",     jour:"fleur",  semis:[4,5],   recolte:[8,9],duree_culture:14},
       {nom:"Cosmos",         type:"fleur",     jour:"fleur",  semis:[4,5],   recolte:[7,10],duree_culture:12},
       {nom:"Zinnia",         type:"fleur",     jour:"fleur",  semis:[4,5],   recolte:[7,10],duree_culture:10},
@@ -1223,26 +1282,26 @@
       {nom:"Géranium",       type:"fleur",     jour:"fleur",  semis:[2,3],   recolte:[5,10],duree_culture:12},
       {nom:"Pétunia",        type:"fleur",     jour:"fleur",  semis:[2,3],   recolte:[5,10],duree_culture:12},
       {nom:"Oeillet d'Inde", type:"fleur",     jour:"fleur",  semis:[3,4],   recolte:[6,10],duree_culture:10},
-      {nom:"Delphinium",     type:"fleur",     jour:"fleur",  semis:[3,4],   recolte:[6,8],duree_culture:20},
-      {nom:"Marguerite",     type:"fleur",     jour:"fleur",  semis:[3,4],   recolte:[5,8],duree_culture:16},
+      {nom:"Delphinium",     type:"fleur",     jour:"fleur",  semis:[3,4],   recolte:[7,8],duree_culture:20},
+      {nom:"Marguerite",     type:"fleur",     jour:"fleur",  semis:[3,4],   recolte:[7,8],duree_culture:16},
       {nom:"Hortensia",      type:"fleur",     jour:"fleur",  plantation:[3,4],   recolte:[6,9],duree_culture:52},
       {nom:"Jasmin",         type:"fleur",     jour:"fleur",  semis:[3,4],   recolte:[6,8],duree_culture:52},
       // LÉGUMES - nouvelles variantes du PDF
       {nom:"Carotte d'hiver",    type:"legume",    jour:"racine", semis:[6,7],   recolte:[10,1],duree_culture:16},
-      {nom:"Cerfeuil",           type:"legume",    jour:"feuille",semis:[3,8],   recolte:[4,10],duree_culture:8},
-      {nom:"Cive",               type:"legume",    jour:"feuille",semis:[3,5],   recolte:[5,9],duree_culture:16},
+      {nom:"Cerfeuil",           type:"legume",    jour:"feuille",semis:[3,8],   recolte:[5,10],duree_culture:8},
+      {nom:"Cive",               type:"legume",    jour:"feuille",semis:[3,5],   recolte:[7,9],duree_culture:16},
       {nom:"Cyclanthère",        type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[7,9],duree_culture:14},
       {nom:"Épinard malabar",    type:"legume",    jour:"feuille",semis:[4,5],   recolte:[6,10],duree_culture:10},
       {nom:"Maïs",               type:"legume",    jour:"fruit",  semis:[4,5],   recolte:[8,9],duree_culture:14},
       {nom:"Oignon blanc",       type:"legume",    jour:"racine", semis:[3,4],   recolte:[7,9],duree_culture:12},
-      {nom:"Petit pois",         type:"legume",    jour:"fruit",  semis:[2,4],   recolte:[5,7],duree_culture:10},
+      {nom:"Petit pois",         type:"legume",    jour:"fruit",  semis:[2,4],   recolte:[6,7],duree_culture:10},
       {nom:"Rhubarbe",           type:"legume",    jour:"feuille",semis:[3,4],   recolte:[4,6],duree_culture:52},
       {nom:"Rutabaga",           type:"legume",    jour:"racine", semis:[5,6],   recolte:[10,12],duree_culture:14},
       {nom:"Laitue d'hiver",    type:"legume",    jour:"feuille",semis:[8,9],   recolte:[10,3],duree_culture:12},
       // AROMATIQUES / MÉDICINALES - nouvelles du PDF
       {nom:"Agastache",          type:"aromatique",jour:"fleur",  semis:[3,5],   recolte:[7,9],duree_culture:14},
-      {nom:"Coriandre tardive",   type:"aromatique",jour:"feuille",semis:[2,4],   recolte:[3,9],duree_culture:8},
-      {nom:"Livèche",            type:"aromatique",jour:"feuille",semis:[2,3],   recolte:[5,9],duree_culture:20},
+      {nom:"Coriandre tardive",   type:"aromatique",jour:"feuille",semis:[2,4],   recolte:[4,9],duree_culture:8},
+      {nom:"Livèche",            type:"aromatique",jour:"feuille",semis:[2,3],   recolte:[7,9],duree_culture:20},
       // FLEURS - nouvelles du PDF
       {nom:"Ancolie",            type:"fleur",     jour:"fleur",  semis:[3,4],   recolte:[5,6],duree_culture:20},
       {nom:"Capucine tubéreuse", type:"fleur",     jour:"fleur",  semis:[4,5],   recolte:[9,10],duree_culture:16},
@@ -1936,10 +1995,8 @@
       // PAS_SEMIS_GLOBAL utilisé
 
       // Filtre climatique : exclure les plantes gélives si on est encore dans la période de gel
-      function okPourZone(p){
-        if(mois <= gelJusque && GELIVES_GLOBAL.includes(p.nom)) return false;
-        return true;
-      }
+      function okPourZone(p){ return true; } // le risque gel est affiché via badge, pas bloquant
+      function estGelRisque(p){ return mois <= gelJusque && GELIVES_GLOBAL.includes(p.nom); }
 
       // Plantes à semer (lune croissante) ou récolter/cueillir (lune décroissante)
       const aSemer    = plantes.filter(p => p.type!=='taille' && p.jour===bd && (p.semis||p.plantation) && isInSeason(mois, p.semis||p.plantation) && okPourZone(p) && !PAS_SEMIS_GLOBAL.includes(p.nom));
@@ -1977,14 +2034,14 @@
         plantesHtml = `
           <div style="font-size:.72rem;color:var(--muted);font-family:Cinzel,serif;margin-bottom:6px;letter-spacing:.06em">${zoneLabel}</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px;" id="${uid}_wrap">
-            ${visible.map(p=>`<span style="${tagStyle}">${p.nom}</span>`).join('')}
+            ${visible.map(p=>`<span style="${tagStyle}">${p.nom}${estGelRisque(p)?' ⚠️':''}</span>`).join('')}
             ${hidden.length > 0 ? `
               <span id="${uid}_more" style="cursor:pointer;background:rgba(140,192,80,0.12);border:1px solid rgba(140,192,80,0.3);border-radius:20px;padding:3px 10px;font-size:.88rem;color:var(--gold)" onclick="
                 document.getElementById('${uid}_more').style.display='none';
                 document.getElementById('${uid}_hidden').style.display='contents';
               ">+${hidden.length} autres ▾</span>
               <span id="${uid}_hidden" style="display:none;contents:flex;flex-wrap:wrap;gap:6px;">
-                ${hidden.map(p=>`<span style="${tagStyle}">${p.nom}</span>`).join('')}
+                ${hidden.map(p=>`<span style="${tagStyle}">${p.nom}${estGelRisque(p)?' ⚠️':''}</span>`).join('')}
               </span>` : ''}
           </div>`;
       } else {
@@ -2177,7 +2234,7 @@
         const okJour=sign.bd===plant.jour;
         const okPhase=waxingNeeded?phase.waxing:!phase.waxing;
         if(okJour&&(okSemis||okRecolte)){
-          const action=phase.waxing?(plant.plantation?'planter':'semer'):'récolter';
+          const action=okSemis?(plant.plantation?'planter':'semer'):'récolter';
           return{date:d,days:i,sign:sign,action:action,okSemis:okSemis,okRecolte:okRecolte};
         }
       }
@@ -2203,7 +2260,8 @@
         if(sign.bd !== plant.jour){ i++; continue; }
         // Bloquer les plantes gélives pendant la période de gel
         var _gelJusque_NFD = GEL_ZONE_GLOBAL[climateZone] || 3;
-        if(mois <= _gelJusque_NFD && GELIVES_GLOBAL.indexOf(plant.nom) >= 0 && !okRecolte){ i++; continue; }
+        var _gelRisque = (mois <= _gelJusque_NFD && GELIVES_GLOBAL.indexOf(plant.nom) >= 0 && !okRecolte);
+        // On ne bloque plus : on laisse passer en saison de plantation, le badge ⚠️ gel s'affiche côté UI
         var dist = moonDistance(d);
         if(dist.nefaste){ i++; continue; }
         if(dist.periWaxing && dist.cryptogamiques.indexOf(plant.nom)>=0){ i++; continue; }
@@ -2212,10 +2270,9 @@
         var newFull = moonNewFullStatus(d);
         if(newFull.nefaste){ i++; continue; }
         var action = null;
-        if(phase.waxing && okSemis)                    action = plant.plantation?'planter':'semer';
-        else if(!phase.waxing && okRecolte)            action = 'récolter';
-        else if(!phase.waxing && okSemis)              action = plant.plantation?'planter':'semer';
-        else if(phase.waxing && okRecolte && !okSemis) action = 'récolter';
+        // Priorité absolue : saison de plantation → planter, sinon récolter
+        if(okSemis)        action = plant.plantation?'planter':'semer';
+        else if(okRecolte) action = 'récolter';
         if(!action){ i++; continue; }
         // Accumuler tous les jours consécutifs valides du même signe
         var periodDays = [];
@@ -2232,13 +2289,12 @@
           var okSJ = (plant.semis||plant.plantation) && isInSeason(moisJ, plant.semis||plant.plantation);
           var okRJ = plant.recolte && isInSeason(moisJ, plant.recolte);
           // Même filtre gel pour les jours consécutifs
-          if(moisJ <= _gelJusque_NFD && GELIVES_GLOBAL.indexOf(plant.nom) >= 0 && !okRJ) break;
+          // Risque gel : on laisse passer, le badge ⚠️ s'affiche côté UI
           var phJ = moonPhase(moonAge(dj));
           var actionJ = null;
-          if(phJ.waxing && okSJ)                   actionJ = plant.plantation?'planter':'semer';
-          else if(!phJ.waxing && okRJ)             actionJ = 'récolter';
-          else if(!phJ.waxing && okSJ)             actionJ = plant.plantation?'planter':'semer';
-          else if(phJ.waxing && okRJ && !okSJ)     actionJ = 'récolter';
+          // Même priorité : plantation prime sur récolte
+          if(okSJ)        actionJ = plant.plantation?'planter':'semer';
+          else if(okRJ)   actionJ = 'récolter';
           if(!actionJ) break;
           periodDays.push({date:dj, days:j, sign:signJ, action:actionJ, phase:phJ});
           j++;
@@ -2305,7 +2361,8 @@
         +' data-plante="'+plantNom.replace(/"/g,'&quot;')+'"'
         +' data-limit="'+_limitISO+'"'
         +' data-change="'+_changeISO+'"'
-        +' data-sign="'+slot.sign.name+'">'
+        +' data-sign="'+slot.sign.name+'"'
+        +' data-lieu="jardin">'
         +'<span class="btn-agenda-icon">📅</span> Ajouter à Google Agenda'
         +'</button>';
     });
@@ -2355,7 +2412,8 @@
           +' data-url="'+gcalToday+'"'
           +' data-date="'+today.toISOString()+'"'
           +' data-action="'+agendaAction+'"'
-          +' data-plante="'+nom+'">'
+          +' data-plante="'+nom+'"'
+          +' data-lieu="jardin">'
           +'<span class="btn-agenda-icon">📅</span> Ajouter aujourd\'hui à Google Agenda'
           +'</button>';
       }
@@ -2717,12 +2775,19 @@
       }
 
       try{
-        const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,uv_index&daily=weather_code,temperature_2m_max,temperature_2m_min&wind_speed_unit=kmh&timezone=auto`;
+        const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,uv_index&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,relative_humidity_2m_max,relative_humidity_2m_min&wind_speed_unit=kmh&timezone=auto`;
         const res=await fetch(url, {cache: 'no-store'});const data=await res.json();const c=data.current;
         if(data.daily){
           window._dailyForecast={};
           data.daily.time.forEach((dateStr,i)=>{
-            window._dailyForecast[dateStr]={code:data.daily.weather_code[i],tmax:Math.round(data.daily.temperature_2m_max[i]),tmin:Math.round(data.daily.temperature_2m_min[i])};
+            window._dailyForecast[dateStr]={
+              code:data.daily.weather_code[i],
+              tmax:Math.round(data.daily.temperature_2m_max[i]),
+              tmin:Math.round(data.daily.temperature_2m_min[i]),
+              pluie:Math.round((data.daily.precipitation_sum[i]||0)*10)/10,
+              vent:Math.round(data.daily.windspeed_10m_max[i]||0),
+              hum:Math.round(((data.daily.relative_humidity_2m_max[i]||0)+(data.daily.relative_humidity_2m_min[i]||0))/2)
+            };
           });
           // Injecter les températures min+max + feux dans le bandeau des 7 jours
           function tempColor(t){ return t<0||t>35?'#e05050':t<=4||t>=31?'#e09040':'#f5f8ee'; }
@@ -2936,6 +3001,60 @@ err=>{
         }
       );
     }
+    // ── SAISIE MANUELLE DE LA VILLE ──
+    function meteoToggleEdit(){
+      const wrap = document.getElementById('meteoManualWrap');
+      const input = document.getElementById('meteoManualInput');
+      if(wrap.style.display === 'none'){
+        wrap.style.display = 'block';
+        input.focus();
+      } else {
+        wrap.style.display = 'none';
+      }
+    }
+    function meteoManualCancel(){
+      document.getElementById('meteoManualWrap').style.display = 'none';
+      document.getElementById('meteoManualMsg').textContent = '';
+      document.getElementById('meteoManualInput').value = '';
+    }
+    function meteoManualSearch(){
+      const val = document.getElementById('meteoManualInput').value.trim();
+      const msg = document.getElementById('meteoManualMsg');
+      if(!val){ msg.textContent = 'Veuillez entrer un nom de ville.'; return; }
+      msg.textContent = '🔍 Recherche en cours…';
+      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(val)}&format=json&limit=1&accept-language=fr`,{
+        headers:{'User-Agent':'DmeTLune/1.0'}
+      })
+      .then(r=>r.json())
+      .then(data=>{
+        if(!data || data.length === 0){
+          msg.textContent = '❌ Ville introuvable, vérifiez l\'orthographe.';
+          return;
+        }
+        const lat = parseFloat(data[0].lat);
+        const lon = parseFloat(data[0].lon);
+        // Nom propre de la ville via reverse geocoding
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=fr`,{
+          headers:{'User-Agent':'DmeTLune/1.0'}
+        })
+        .then(r=>r.json())
+        .then(d=>{
+          const city = d.address.village || d.address.town || d.address.city || d.address.municipality || val;
+          saveLastLocation(lat, lon, city);
+          loadWeather(lat, lon, city);
+          meteoManualCancel();
+        })
+        .catch(()=>{
+          saveLastLocation(lat, lon, val);
+          loadWeather(lat, lon, val);
+          meteoManualCancel();
+        });
+      })
+      .catch(()=>{
+        msg.textContent = '❌ Erreur réseau, vérifiez votre connexion.';
+      });
+    }
+
     // Vérifier la connectivité — utilise l'interface Android si disponible, sinon navigator.onLine
     function isOnline(){
       try { if(typeof AndroidNetwork !== 'undefined') return AndroidNetwork.isOnline(); } catch(e){}
@@ -2992,6 +3111,10 @@ err=>{
       {nom:"Courgette",     semisInt:[4,4],  repiMois:[5,6],  germ:1, duree:3,  lieu:"fenetre", note:"Croissance rapide, ne pas semer trop tôt",duree_culture:10},
       {nom:"Concombre",     semisInt:[4,4],  repiMois:[5,6],  germ:1, duree:3,  lieu:"fenetre", note:"Repiquer sans abîmer les racines",duree_culture:10},
       {nom:"Cornichon",     semisInt:[4,5],  repiMois:[5,6],  germ:1, duree:3,  lieu:"fenetre", note:"Semer à 20°C, repiquer après les Saints de Glace",duree_culture:10},
+      {nom:"Potiron",       semisInt:[4,4],  repiMois:[5,6],  germ:1, duree:3,  lieu:"fenetre", note:"Semer sur la tranche, 1 graine par pot, 20°C min",duree_culture:20},
+      {nom:"Courge butternut",semisInt:[4,4],repiMois:[5,6],  germ:1, duree:3,  lieu:"fenetre", note:"Même principe que le potiron, tuteurer à la plantation",duree_culture:20},
+      {nom:"Cyclanthère",   semisInt:[4,4],  repiMois:[5,6],  germ:1, duree:3,  lieu:"fenetre", note:"Semer à 20°C, plante grimpante très productive",duree_culture:12},
+      {nom:"Épinard malabar",semisInt:[3,4], repiMois:[5,6],  germ:2, duree:6,  lieu:"fenetre", note:"Tremper les graines 24h avant semis, aime la chaleur",duree_culture:12},
       {nom:"Melon",         semisInt:[4,4],  repiMois:[5,6],  germ:1, duree:4,  lieu:"serre",   note:"Chaleur 20°C+ indispensable",duree_culture:14},
       {nom:"Céleri-rave",   semisInt:[2,3],  repiMois:[4,5],  germ:2, duree:10, lieu:"fenetre", note:"Semis superficiel, ne pas couvrir",duree_culture:24},
       {nom:"Céleri branche",semisInt:[2,3],  repiMois:[4,5],  germ:2, duree:10, lieu:"fenetre", note:"Semis superficiel",duree_culture:20},
@@ -3119,11 +3242,11 @@ function buildSaintsGlace(){
         <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
           ${(()=>{
             const gcalSemis = semisCible > today
-              ? `<button class="btn-agenda" onclick="dmtAgenda(this)" data-url="${fmtGCal(semisCible,'semer',nom,todaySign.name)}" data-date="${semisCible.toISOString()}" data-action="semer" data-plante="${nom}">
+              ? `<button class="btn-agenda" onclick="dmtAgenda(this)" data-url="${fmtGCal(semisCible,'semer',nom,todaySign.name)}" data-date="${semisCible.toISOString()}" data-action="semer" data-plante="${nom}" data-lieu="${p.lieu}">
                   <span class="btn-agenda-icon">📅</span> Agenda : semis
                  </button>`
               : '';
-            const gcalRepi = `<button class="btn-agenda" onclick="dmtAgenda(this)" data-url="${fmtGCal(repiDate,'repiquer',nom,todaySign.name)}" data-date="${repiDate.toISOString()}" data-action="repiquer" data-plante="${nom}">
+            const gcalRepi = `<button class="btn-agenda" onclick="dmtAgenda(this)" data-url="${fmtGCal(repiDate,'repiquer',nom,todaySign.name)}" data-date="${repiDate.toISOString()}" data-action="repiquer" data-plante="${nom}" data-lieu="${p.lieu}">
                 <span class="btn-agenda-icon">📅</span> Agenda : repiquage
                </button>`;
             return gcalSemis + gcalRepi;
@@ -3159,6 +3282,7 @@ function buildSaintsGlace(){
                data-date="${nextDates[0].toISOString()}"
                data-action="semer"
                data-plante="${p.nom.replace(/"/g,'&quot;')}"
+               data-lieu="${p.lieu}"
                style="margin-top:8px;width:100%;justify-content:center;">
                <span class="btn-agenda-icon">📅</span> Agenda : semis
              </button>`
@@ -4082,7 +4206,8 @@ function confirmAgenda(){
   pbAdd(
     new Date(_agendaBtn.getAttribute('data-date')),
     _agendaBtn.getAttribute('data-action'),
-    _agendaBtn.getAttribute('data-plante')
+    _agendaBtn.getAttribute('data-plante'),
+    _agendaBtn.getAttribute('data-lieu') || 'jardin'
   );
   _agendaBtn = null;
 }
@@ -4228,9 +4353,14 @@ function pbRender(){
       }
     }
 
+    var lieuBadge = (x.lieu === 'serre')
+      ? '<span style="font-family:Cinzel,serif;font-size:.58rem;color:#6dca90;background:rgba(46,180,80,.15);border:1px solid rgba(46,180,80,.4);border-radius:8px;padding:1px 6px;margin-left:5px;white-space:nowrap;">🏡 Serre</span>'
+      : (x.lieu === 'fenetre')
+      ? '<span style="font-family:Cinzel,serif;font-size:.58rem;color:#c9a84c;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.4);border-radius:8px;padding:1px 6px;margin-left:5px;white-space:nowrap;">🪟 Fenêtre</span>'
+      : '<span style="font-family:Cinzel,serif;font-size:.58rem;color:#90d070;background:rgba(120,192,60,.15);border:1px solid rgba(120,192,60,.4);border-radius:8px;padding:1px 6px;margin-left:5px;white-space:nowrap;">🌱 Jardin</span>';
     return '<tr style="'+(isPast?'opacity:.5;':'')+'">'
       +'<td class="pb-date" style="white-space:nowrap;">'+pbFmt(d)+pastBadge+'</td>'
-      +'<td style="padding:0 8px;">'+pbBadge(x.action)+'</td>'
+      +'<td style="padding:0 8px;">'+pbBadge(x.action)+lieuBadge+'</td>'
       +'<td class="pb-plante-cell" style="white-space:nowrap;"><span style="vertical-align:middle;margin-right:5px">'+gi(x.plante)+'</span>'+esc(x.plante)+'</td>'
       +creneauTd
       +'<td style="padding:0 4px;white-space:nowrap;">'+reporterHtml+'</td>'
@@ -4315,12 +4445,12 @@ function pbAddSlot(iso,action,plante,signName){
   }
   pbRender();
 }
-function pbAdd(date,action,plante){
+function pbAdd(date,action,plante,lieu){
   var pad=function(n){return String(n).padStart(2,'0');};
   var iso=date.getFullYear()+'-'+pad(date.getMonth()+1)+'-'+pad(date.getDate());
   var e=pbLoad();
   var uid=iso+'_'+action+'_'+plante+'_'+Date.now();
-  e.push({dateISO:iso,action:action,plante:plante,uid:uid});
+  e.push({dateISO:iso,action:action,plante:plante,lieu:lieu||'jardin',uid:uid});
   pbSave(e);pbRender();
 }
 function pbDelete(uid){
@@ -5438,6 +5568,15 @@ function potGetPlantSvg(nom){
   return '<svg viewBox="0 0 64 104" width="32" height="52" style="display:block;overflow:visible;">'+defs+inner+'</svg>';
 }
 
+// ── HELPER : date de semis réelle par case ──
+function potGetSemis(r,c,yStr){
+  return localStorage.getItem('pot_semis_'+r+'_'+c+'_'+yStr)||null;
+}
+function potSetSemis(r,c,yStr,dateISO){
+  if(dateISO) localStorage.setItem('pot_semis_'+r+'_'+c+'_'+yStr, dateISO);
+  else localStorage.removeItem('pot_semis_'+r+'_'+c+'_'+yStr);
+}
+
 // ── HELPER : retourne toujours un tableau de noms (compat. anciennes données string) ──
 function potGetNoms(r,c,yStr){
   const val=potData[r]&&potData[r][c]&&potData[r][c][yStr];
@@ -5460,7 +5599,7 @@ function potRenderJardin(){
   const yStr=String(potYear), prevY=String(potYear-1);
   const LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const PX=0.8;     // 1cm = 0.8px
-  const RANG_H=42;  // hauteur fixe d'un rang (px) — assez pour les boutons
+  const RANG_H=54;  // hauteur fixe d'un rang (px) — assez pour les boutons + date de semis
 
   // ── Taille visuelle selon distance sur le rang ──
   function getTaille(nom){
@@ -5545,9 +5684,28 @@ function potRenderJardin(){
             +'<button onclick="event.stopPropagation();potRemplacer('+r+','+c+',1)" style="position:absolute;bottom:2px;right:2px;'+btnRStyle+'">↺</button>';
         }
 
+        // Date de semis : réelle ou planifiée
+        const semisReel = potGetSemis(r,c,yStr);
+        let semisHtml = '';
+        if(semisReel){
+          const ds = new Date(semisReel+'T12:00:00');
+          const label = ds.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+          semisHtml = '<div style="text-align:center;font-family:Cinzel,serif;font-size:7px;color:rgba(200,240,140,0.95);white-space:nowrap;background:rgba(0,0,0,0.40);padding:2px 0;letter-spacing:.04em;text-shadow:0 1px 3px rgba(0,0,0,1);">🌱 '+label+'</div>';
+        } else {
+          const plantFiche = window._dmtPlantes && window._dmtPlantes.find(function(p){return p.nom===noms[0];});
+          if(plantFiche && (plantFiche.semis || plantFiche.plantation)){
+            const moisDeb = (plantFiche.semis||plantFiche.plantation)[0];
+            const moisNoms=['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'];
+            semisHtml = '<div style="text-align:center;font-family:Cinzel,serif;font-size:7px;color:rgba(160,210,100,0.75);white-space:nowrap;background:rgba(0,0,0,0.30);padding:2px 0;letter-spacing:.04em;text-shadow:0 1px 2px rgba(0,0,0,0.9);">🗓 '+moisNoms[moisDeb-1]+'</div>';
+          }
+        }
+
         html+='<div style="flex:1;position:relative;background:'+bg+';border:1.5px solid '+bc+';border-radius:6px;overflow:hidden;cursor:pointer;min-height:'+RANG_H+'px;" onclick="potCellTap('+r+','+c+')" onmouseover="this.style.borderColor=\'rgba(180,220,100,0.7)\';this.querySelectorAll(\'button\').forEach(b=>b.style.opacity=\'1\')" onmouseout="this.style.borderColor=\''+bc+'\';this.querySelectorAll(\'button\').forEach(b=>b.style.opacity=\'0\')">'
           +btnsHtml
+          +'<div style="display:flex;flex-direction:column;height:100%;">'
           +buildRangDist(noms[0],noms[1]||null,containerW)
+          +semisHtml
+          +'</div>'
           +'</div>';
 
       } else if(prevNom){
@@ -5688,6 +5846,13 @@ function potCellTap(r,c){
   }
   const newNoms=[...noms, potSelVeg];
   potSetNoms(r,c,yStr,newNoms);
+  // Demander la date de semis réelle (optionnel)
+  var todayISO=(function(){var d=new Date(),pad=function(n){return String(n).padStart(2,'0');};return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear();})();
+  var saisie=prompt('📅 Date de semis au jardin pour '+potSelVeg+' (case '+String.fromCharCode(65+r)+(c+1)+') ?\nFormat : JJ/MM/AAAA — Laisser vide pour ne pas enregistrer.', todayISO);
+  if(saisie && /^\d{2}\/\d{2}\/\d{4}$/.test(saisie.trim())){
+    var parts=saisie.trim().split('/');
+    potSetSemis(r,c,yStr,parts[2]+'-'+parts[1]+'-'+parts[0]);
+  }
   potSave();potRenderJardin();
   const rot=potRotStatus(r,c,potSelVeg,potYear),assoc=potAssocStatus(r,c,potSelVeg);
   const prevNom=(potGetNoms(r,c,String(potYear-1)))[0]||null;
@@ -5707,10 +5872,11 @@ function potRemoveOne(r,c,idx){
   const noms=potGetNoms(r,c,yStr);
   noms.splice(idx,1);
   potSetNoms(r,c,yStr,noms);
+  if(noms.length===0) potSetSemis(r,c,yStr,null);
   potSave();potRenderJardin();
   potSetInfo(noms.length===0?'Case vidée.':'Plante retirée — '+noms[0]+' reste dans la case.');
 }
-function potRemove(r,c){potSetNoms(r,c,String(potYear),[]);potSave();potRenderJardin();potSetInfo('Case vidée.');}
+function potRemove(r,c){potSetNoms(r,c,String(potYear),[]);potSetSemis(r,c,String(potYear),null);potSave();potRenderJardin();potSetInfo('Case vidée.');}
 function potShowCellInfo(r,c,noms){
   if(!Array.isArray(noms)) noms=[noms];
   const prevNom=(potGetNoms(r,c,String(potYear-1)))[0]||null;
@@ -6082,6 +6248,8 @@ potFullReset = function(){
     potRows = 3; potCols = 4;
     try{ localStorage.removeItem('dmt_potv3'); }catch(e){}
     try{ localStorage.removeItem('dmt_pb'); }catch(e){}
+    // Effacer toutes les dates de semis
+    try{ Object.keys(localStorage).filter(function(k){return k.startsWith('pot_semis_');}).forEach(function(k){localStorage.removeItem(k);}); }catch(e){}
     potSave(); potRenderJardin();
     var rowsEl=document.getElementById('pot-rows');
     var colsEl=document.getElementById('pot-cols');
@@ -6589,6 +6757,154 @@ potFullReset = function(){
         return map[nom]||'🌱';
       };
     })();
+
+// ── Arrosage ──────────────────────────────────────────────────
+var _arrosageRealData = null;
+var _arrosageInited = false;
+
+function ouvrirArrosage(){
+  document.getElementById('page-arrosage').style.display='flex';
+  document.body.style.overflow='hidden';
+  // Récupère la ville déjà affichée dans le bloc météo principal
+  var locEl = document.getElementById('meteoLoc');
+  var villeEl = document.getElementById('arro-ville');
+  if(locEl && villeEl){
+    // Extraire uniquement le texte (sans les badges hors-ligne)
+    var txt = locEl.textContent || locEl.innerText || '';
+    villeEl.textContent = txt.trim() || '📍 Localisation en cours…';
+  }
+  arrosageInit();
+}
+function fermerArrosage(){
+  document.getElementById('page-arrosage').style.display='none';
+  document.body.style.overflow='';
+}
+function arrosageInit(){
+  // Réutiliser les données météo déjà chargées par l'app principale
+  if(window._dailyForecast){
+    var keys=Object.keys(window._dailyForecast).sort();
+    if(keys.length>=3){
+      var days=keys.slice(0,3).map(function(k){
+        var d=window._dailyForecast[k];
+        return {tmax:d.tmax,tmin:d.tmin,hum:d.hum||55,vent:d.vent||10,pluie:d.pluie||0,code:d.code};
+      });
+      var d0=days[0];
+      _arrosageRealData={tmax:d0.tmax,tmin:d0.tmin,humMoy:d0.hum,ventKmh:d0.vent,pluie:d0.pluie,days:days,pluieHier:0};
+      _arrosageInited=true;
+      // Charger la pluie d'hier via l'API historique
+      arrosageFetchHier(_arrosageRealData);
+      return;
+    }
+  }
+  if(_arrosageInited && _arrosageRealData){ arrosageRender(_arrosageRealData); return; }
+  arrosageFetch();
+}
+function arrosageFetchHier(data){
+  // Affichage immédiat sans J-1, puis mise à jour dès réception
+  arrosageRender(data);
+  if(!navigator.geolocation){ return; }
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var lat=pos.coords.latitude, lon=pos.coords.longitude;
+    var hier=new Date(); hier.setDate(hier.getDate()-1);
+    var pad=function(n){return String(n).padStart(2,'0');};
+    var hierStr=hier.getFullYear()+'-'+pad(hier.getMonth()+1)+'-'+pad(hier.getDate());
+    var url='https://archive-api.open-meteo.com/v1/archive?latitude='+lat+'&longitude='+lon
+      +'&start_date='+hierStr+'&end_date='+hierStr
+      +'&daily=precipitation_sum&timezone=auto';
+    fetch(url).then(function(r){return r.json();}).then(function(d){
+      if(d && d.daily && d.daily.precipitation_sum && d.daily.precipitation_sum[0]!=null){
+        data.pluieHier=Math.round(d.daily.precipitation_sum[0]*10)/10;
+        _arrosageRealData=data;
+        arrosageRender(data);
+      }
+    }).catch(function(){/* silencieux si hors-ligne */});
+  }, function(){}, {timeout:5000});
+}
+function arrosageCalcETP(tmax,tmin,humMoy,ventKmh){
+  // Correction 1 : si temps froid (tmax < 12°C), ETP très faible
+  if(tmax < 12) return Math.round(Math.max(0, tmax * 0.08) * 10) / 10;
+  var tmoy=(tmax+tmin)/2, tdelta=Math.max(0,tmax-tmin), Ra=30;
+  var etp=0.0023*(tmoy+17.8)*Math.pow(tdelta,0.5)*Ra*0.408;
+  // Correction 2 : vent
+  if(ventKmh>20) etp*=1.15;
+  if(ventKmh>40) etp*=1.30;
+  // Correction 3 : humidité
+  if(humMoy>70) etp*=0.90;
+  else if(humMoy<40) etp*=1.15;
+  return Math.round(etp*10)/10;
+}
+function arrosageDecision(etp, pluie, pluieHier){
+  // La pluie d'hier compense partiellement (rétention sol ~40% sur 24h)
+  var apportHier = Math.round((pluieHier||0) * 0.4 * 10) / 10;
+  var apportTotal = pluie + apportHier;
+  var besoin = Math.max(0, etp - apportTotal);
+  var contexte = pluieHier > 5
+    ? ' (pluie de '+pluieHier+'mm hier prise en compte)'
+    : pluieHier > 0 ? ' ('+pluieHier+'mm hier)' : '';
+  if(apportTotal >= etp) return {cls:'ok',   icon:'☔', title:"Pas d'arrosage nécessaire", text:"Les précipitations récentes couvrent les besoins du sol"+contexte+".",    qty:0,     conseil:"Sol suffisamment humide — vérifiez le drainage de vos bacs."};
+  if(besoin<1.5)         return {cls:'light',icon:'🌱', title:"Arrosage léger conseillé",  text:"Le sol se dessèche légèrement"+contexte+".",                              qty:besoin,conseil:"Arrosez en soirée, à la base des plantes, pour limiter l'évaporation."};
+  if(besoin<3.5)         return {cls:'med',  icon:'💧', title:"Arrosage modéré recommandé",text:"Évapotranspiration significative"+contexte+".",                           qty:besoin,conseil:"Arrosez tôt le matin (6h–9h) — l'eau pénètre mieux avant la chaleur."};
+  if(besoin<6)           return {cls:'high', icon:'💧💧',title:"Arrosage important",         text:"Forte évaporation — risque de stress hydrique"+contexte+".",              qty:besoin,conseil:"Arrosez avant 9h. Paillez le sol pour conserver l'humidité."};
+  return                        {cls:'alert',icon:'🚨', title:"Arrosage urgent",            text:"Conditions extrêmes — flétrissement rapide"+contexte+".",                 qty:besoin,conseil:"⚠️ Arrosez dès maintenant, puis de nouveau après 19h. Ombrez les plants fragiles."};
+}
+function arrosageRender(data){
+  var pluieHier=data.pluieHier||0;
+  var etp=arrosageCalcETP(data.tmax,data.tmin,data.humMoy,data.ventKmh);
+  var dec=arrosageDecision(etp,data.pluie,pluieHier);
+  var pct=Math.min(98,(etp/10)*100);
+  var g=document.getElementById('arro-gauge');
+  if(g){g.style.width=pct+'%';g.className='arro-gauge-fill '+(etp<2?'g-low':etp<4?'g-med':etp<7?'g-high':'g-xhigh');}
+  var ev=document.getElementById('arro-etp-val');
+  if(ev) ev.textContent=etp+' mm/jour';
+  var box=document.getElementById('arro-reco');
+  if(box){
+    box.className='arro-reco-box '+dec.cls;
+    document.getElementById('arro-icon').textContent=dec.icon;
+    document.getElementById('arro-title').textContent=dec.title;
+    document.getElementById('arro-text').textContent=dec.text;
+    var qEl=document.getElementById('arro-qty');
+    if(qEl) qEl.innerHTML=dec.qty>0?'<span style="font-family:\'Playfair Display\',serif;font-size:1.5rem;color:#fff;">'+Math.round(dec.qty*10)/10+'</span> <span style="font-size:.85rem;color:#b0d8f0;">mm/m²</span>':'';
+  }
+  var c=document.getElementById('arro-conseil');
+  if(c) c.textContent='💡 '+dec.conseil;
+  var setF=function(id,val,unit){var el=document.getElementById(id);if(el)el.innerHTML='<span style="font-family:\'Playfair Display\',serif;font-size:1.25rem;color:#fff;">'+val+'</span><small style="font-size:.85rem;color:#b0cc90;margin-left:4px;">'+unit+'</small>';};
+  setF('arro-f-temp',data.tmax,'°C max');
+  setF('arro-f-hum',data.humMoy,'% HR');
+  setF('arro-f-vent',data.ventKmh,'km/h');
+  setF('arro-f-pluie',data.pluie,'mm');
+  // Pluie J-1
+  var hierEl=document.getElementById('arro-f-hier');
+  if(hierEl){
+    if(pluieHier>0){
+      hierEl.innerHTML='<span style="font-family:\'Playfair Display\',serif;font-size:1.25rem;color:#7ab8d8;">'+pluieHier+'</span><small style="font-size:.85rem;color:#b0cc90;margin-left:4px;">mm <span style="color:#7ab8d8;font-size:.75rem;">(~'+Math.round(pluieHier*0.4*10)/10+'mm retenu)</span></small>';
+    } else {
+      hierEl.innerHTML='<span style="font-family:\'Playfair Display\',serif;font-size:1.25rem;color:#b0cc90;">0</span><small style="font-size:.85rem;color:#b0cc90;margin-left:4px;">mm</small>';
+    }
+  }
+  var icons={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',61:'🌧️',63:'🌧️',65:'🌧️',80:'🌦️',95:'⛈️'};
+  var jours=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  var pr=document.getElementById('arro-prev');
+  if(pr) pr.innerHTML=data.days.slice(0,3).map(function(d,i){
+    var etpD=arrosageCalcETP(d.tmax,d.tmin,d.hum,d.vent);
+    var apport=d.pluie+(i===0?Math.round(pluieHier*0.4*10)/10:0);
+    var besoinD=Math.max(0,etpD-apport);
+    var ar=apport>=etpD?{cls:'a-non',txt:'✓ Non'}:besoinD<2?{cls:'a-peu',txt:'Léger'}:{cls:'a-oui',txt:'Oui'};
+    var nom=i===0?"Aujourd'hui":i===1?'Demain':jours[(new Date().getDay()+2)%7];
+    return '<div class="arro-prev-day'+(i===0?' arro-today':'')+'"><div class="apd-nom">'+nom+'</div><div class="apd-ico">'+(icons[d.code]||'🌤️')+'</div><div class="apd-pluie">'+d.pluie+'mm 💧</div><div class="apd-temp">'+d.tmax+'° / '+d.tmin+'°</div><div class="apd-ar '+ar.cls+'">'+ar.txt+'</div></div>';
+  }).join('');
+}
+function arrosageScenario(type){
+  document.querySelectorAll('.arro-sim-btn').forEach(function(b){b.classList.remove('active');});
+  event.target.classList.add('active');
+  var s={
+    canicule:{tmax:38,tmin:22,humMoy:28,ventKmh:35,pluie:0,days:[{tmax:38,tmin:22,hum:28,vent:35,pluie:0,code:0},{tmax:40,tmin:24,hum:25,vent:30,pluie:0,code:0},{tmax:36,tmin:21,hum:32,vent:20,pluie:0,code:1}]},
+    frais:    {tmax:17,tmin:9, humMoy:72,ventKmh:12,pluie:0.5,days:[{tmax:17,tmin:9,hum:72,vent:12,pluie:0.5,code:2},{tmax:16,tmin:8,hum:75,vent:10,pluie:1.2,code:3},{tmax:18,tmin:10,hum:68,vent:14,pluie:0,code:1}]},
+    pluie:    {tmax:14,tmin:10,humMoy:88,ventKmh:18,pluie:12, days:[{tmax:14,tmin:10,hum:88,vent:18,pluie:12,code:63},{tmax:13,tmin:9,hum:85,vent:20,pluie:6,code:61},{tmax:16,tmin:9,hum:76,vent:15,pluie:0,code:2}]}
+  };
+  if(type==='reel'&&_arrosageRealData){arrosageRender(_arrosageRealData);return;}
+  if(type==='reel') return;
+  arrosageRender(s[type]);
+}
 </script>
 
 <!-- ══ BANNIÈRE CONFIRMATION JARDIN ══ -->
@@ -9688,6 +10004,148 @@ potFullReset = function(){
     </div>
 </div>
 
+
+
+<!-- ══ PAGE ARROSAGE ══════════════════════════════════════════════════════ -->
+<div id="page-arrosage" style="display:none;position:fixed;inset:0;z-index:500;overflow-y:auto;flex-direction:column;background:#020e18;">
+
+    <!-- Fond étoilé bleu nuit -->
+    <div style="position:fixed;inset:0;z-index:0;
+    background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(10,30,60,0.9) 0%,transparent 70%),
+    linear-gradient(160deg,#020a18 0%,#061020 50%,#020812 100%);pointer-events:none;"></div>
+
+    <div style="position:relative;z-index:2;max-width:540px;width:100%;margin:0 auto;padding:28px 20px 60px;">
+
+        <!-- En-tête -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div style="font-size:2rem;filter:drop-shadow(0 0 10px rgba(80,160,255,0.6));">💧</div>
+                <div>
+                    <div style="font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.15em;color:#7ab8d8;text-transform:uppercase;">Recommandation d'arrosage</div>
+                    <div id="arro-ville" style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1rem;color:rgba(200,220,240,0.7);">📍 Localisation en cours…</div>
+                </div>
+            </div>
+            <button onclick="fermerArrosage()" style="background:rgba(80,140,200,0.1);border:1px solid rgba(80,140,200,0.35);border-radius:8px;color:#7ab8d8;cursor:pointer;font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.1em;padding:6px 14px;text-transform:uppercase;">← Retour</button>
+        </div>
+
+        <!-- Jauge ETP -->
+        <div style="background:rgba(5,20,40,0.85);border:1px solid rgba(80,140,200,0.22);border-radius:16px;padding:18px 20px;margin-bottom:14px;box-shadow:0 4px 24px rgba(0,0,0,0.5);">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:.12em;color:#7ab8d8;text-transform:uppercase;margin-bottom:10px;">
+                Évapotranspiration (ETP) <span id="arro-etp-val" style="color:#b0d8f0;font-family:'Playfair Display',serif;font-size:.95rem;">—</span>
+            </div>
+            <div style="height:10px;background:rgba(255,255,255,0.05);border-radius:10px;border:1px solid rgba(80,140,200,0.15);overflow:hidden;">
+                <div id="arro-gauge" class="arro-gauge-fill g-low" style="height:100%;width:0%;border-radius:10px;transition:width 1.2s cubic-bezier(.4,0,.2,1);"></div>
+            </div>
+        </div>
+
+        <!-- Recommandation principale -->
+        <div id="arro-reco" class="arro-reco-box ok" style="margin-bottom:14px;">
+            <div id="arro-icon" style="font-size:2.2rem;flex-shrink:0;line-height:1;margin-top:2px;">💧</div>
+            <div style="flex:1;">
+                <div id="arro-title" style="font-family:'Cinzel',serif;font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;">Calcul en cours…</div>
+                <div id="arro-text" style="font-size:1.05rem;color:rgba(220,235,250,0.90);line-height:1.6;"></div>
+                <div id="arro-qty" style="margin-top:6px;"></div>
+            </div>
+        </div>
+
+        <!-- Facteurs météo -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(80,140,200,0.14);border-radius:10px;padding:10px 12px;">
+                <div style="font-family:'Cinzel',serif;font-size:.60rem;letter-spacing:.10em;color:#7ab8d8;text-transform:uppercase;margin-bottom:4px;">🌡️ Température max</div>
+                <div id="arro-f-temp">—</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(80,140,200,0.14);border-radius:10px;padding:10px 12px;">
+                <div style="font-family:'Cinzel',serif;font-size:.60rem;letter-spacing:.10em;color:#7ab8d8;text-transform:uppercase;margin-bottom:4px;">💦 Humidité</div>
+                <div id="arro-f-hum">—</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(80,140,200,0.14);border-radius:10px;padding:10px 12px;">
+                <div style="font-family:'Cinzel',serif;font-size:.60rem;letter-spacing:.10em;color:#7ab8d8;text-transform:uppercase;margin-bottom:4px;">🌬️ Vent moyen</div>
+                <div id="arro-f-vent">—</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(80,140,200,0.14);border-radius:10px;padding:10px 12px;">
+                <div style="font-family:'Cinzel',serif;font-size:.60rem;letter-spacing:.10em;color:#7ab8d8;text-transform:uppercase;margin-bottom:4px;">🌧️ Pluie aujourd'hui</div>
+                <div id="arro-f-pluie">—</div>
+            </div>
+            <div style="grid-column:1/-1;background:rgba(80,140,200,0.06);border:1px solid rgba(80,140,200,0.22);border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
+                <div style="font-family:'Cinzel',serif;font-size:.60rem;letter-spacing:.10em;color:#7ab8d8;text-transform:uppercase;">🌧️ Pluie hier (J-1)</div>
+                <div id="arro-f-hier">—</div>
+            </div>
+        </div>
+
+        <!-- Conseil horaire -->
+        <div id="arro-conseil" style="background:rgba(80,140,200,0.08);border-left:2px solid #7ab8d8;border-radius:0 10px 10px 0;padding:10px 14px;font-style:italic;font-size:1.05rem;color:#b0d8f0;line-height:1.6;margin-bottom:14px;">
+            Récupération des données météo…
+        </div>
+
+        <!-- Prévisions 3 jours -->
+        <div style="margin-bottom:18px;">
+            <div style="font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.13em;color:#7ab8d8;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+                Prévisions arrosage <span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(80,140,200,.25),transparent);display:block;"></span>
+            </div>
+            <div id="arro-prev" style="display:flex;gap:8px;"></div>
+        </div>
+
+        <!-- Simulateur -->
+        <div style="padding-top:16px;border-top:1px solid rgba(80,140,200,0.12);">
+            <div style="font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.13em;color:#7ab8d8;text-transform:uppercase;margin-bottom:10px;">🎛 Simuler un scénario</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="arro-sim-btn active" onclick="arrosageScenario('reel')">Données réelles</button>
+                <button class="arro-sim-btn" onclick="arrosageScenario('canicule')">🌞 Canicule</button>
+                <button class="arro-sim-btn" onclick="arrosageScenario('frais')">🌥️ Frais</button>
+                <button class="arro-sim-btn" onclick="arrosageScenario('pluie')">🌧️ Pluie</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    /* ── Arrosage styles ── */
+    .arro-gauge-fill { height:100%;border-radius:10px;transition:width 1.2s cubic-bezier(.4,0,.2,1); }
+    .g-low   { background:linear-gradient(90deg,#2a8a40,#4aba60); }
+    .g-med   { background:linear-gradient(90deg,#8a9a20,#c8d840); }
+    .g-high  { background:linear-gradient(90deg,#c06020,#f09040); }
+    .g-xhigh { background:linear-gradient(90deg,#a02020,#e04040);animation:arro-pulse 1.5s ease-in-out infinite; }
+    @keyframes arro-pulse{0%,100%{opacity:1;}50%{opacity:.65;}}
+
+    .arro-reco-box {
+      border-radius:14px;padding:16px 18px;display:flex;align-items:flex-start;gap:14px;border:1px solid;
+      box-shadow:0 4px 20px rgba(0,0,0,0.4);
+    }
+    .arro-reco-box.ok    { background:rgba(30,100,50,.18); border-color:rgba(60,160,80,.35); }
+    .arro-reco-box.ok    #arro-title { color:#70e090; }
+    .arro-reco-box.light { background:rgba(90,140,20,.14); border-color:rgba(150,200,30,.30); }
+    .arro-reco-box.light #arro-title { color:#b8e060; }
+    .arro-reco-box.med   { background:rgba(140,120,10,.16); border-color:rgba(200,180,20,.35); }
+    .arro-reco-box.med   #arro-title { color:#e8d060; }
+    .arro-reco-box.high  { background:rgba(160,70,10,.16);  border-color:rgba(220,100,30,.40); }
+    .arro-reco-box.high  #arro-title { color:#f0a050; }
+    .arro-reco-box.alert { background:rgba(140,15,15,.20);  border-color:rgba(210,40,40,.45); }
+    .arro-reco-box.alert #arro-title { color:#f06060; }
+
+    .arro-prev-day {
+      flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(80,140,200,0.14);
+      border-radius:10px;padding:10px 8px;text-align:center;
+    }
+    .arro-today { border-color:rgba(80,140,200,0.45);background:rgba(80,140,200,0.10); }
+    .apd-nom  { font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:.08em;color:#7ab8d8;text-transform:uppercase;margin-bottom:5px; }
+    .apd-ico  { font-size:1.4rem;margin-bottom:5px; }
+    .apd-pluie{ font-size:.75rem;color:#b0d8f0;margin-bottom:3px; }
+    .apd-temp { font-family:'Playfair Display',serif;font-size:.95rem;color:#fff; }
+    .apd-ar   { margin-top:6px;font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:.06em;text-transform:uppercase;padding:2px 5px;border-radius:6px; }
+    .a-non { color:#70e090;background:rgba(70,180,90,.15); }
+    .a-oui { color:#7ab8d8;background:rgba(80,150,220,.15); }
+    .a-peu { color:#c8d840;background:rgba(150,190,30,.12); }
+
+    .arro-sim-btn {
+      flex:1;min-width:80px;background:rgba(255,255,255,0.03);border:1px solid rgba(80,140,200,0.20);
+      border-radius:8px;padding:8px 10px;cursor:pointer;font-family:'Cinzel',serif;font-size:.60rem;
+      letter-spacing:.08em;color:#7ab8d8;text-transform:uppercase;transition:all .2s;text-align:center;
+    }
+    .arro-sim-btn:hover,.arro-sim-btn.active {
+      border-color:#7ab8d8;color:#b0d8f0;background:rgba(80,140,200,0.12);
+    }
+</style>
 
 </body>
 </html>
